@@ -1,0 +1,191 @@
+import React, { useState } from 'react';
+import { X, PiggyBank, DollarSign } from 'lucide-react';
+import { SavingsGoal } from '../../types';
+import { useTheme } from '../../contexts/ThemeContext';
+import { formatRupiah } from '../../utils/currency';
+
+interface ContributeModalProps {
+  goal: SavingsGoal;
+  onClose: () => void;
+  onContribute: (goalId: string, amount: number, description: string) => Promise<boolean>;
+}
+
+const ContributeModal: React.FC<ContributeModalProps> = ({ goal, onClose, onContribute }) => {
+  const { t } = useTheme();
+  const [amount, setAmount] = useState('');
+  const [description, setDescription] = useState(`Kontribusi untuk ${goal.name}`);
+  const [loading, setLoading] = useState(false);
+
+  const remainingAmount = goal.target_amount - goal.current_amount;
+  const progress = (goal.current_amount / goal.target_amount) * 100;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!amount || !description.trim()) {
+      return;
+    }
+
+    const contributionAmount = parseFloat(amount);
+    if (contributionAmount <= 0) {
+      alert('Jumlah kontribusi harus lebih dari 0');
+      return;
+    }
+
+    if (contributionAmount > remainingAmount) {
+      if (!window.confirm(`Jumlah kontribusi (${formatRupiah(contributionAmount)}) melebihi sisa target (${formatRupiah(remainingAmount)}). Lanjutkan?`)) {
+        return;
+      }
+    }
+
+    setLoading(true);
+    try {
+      const success = await onContribute(goal.id, contributionAmount, description.trim());
+      if (success) {
+        onClose();
+      } else {
+        alert('Gagal menambahkan kontribusi. Silakan coba lagi.');
+      }
+    } catch (error) {
+      console.error('Error contributing to goal:', error);
+      alert('Terjadi kesalahan. Silakan coba lagi.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const quickAmounts = [
+    Math.min(50000, remainingAmount),
+    Math.min(100000, remainingAmount),
+    Math.min(250000, remainingAmount),
+    remainingAmount,
+  ].filter(amount => amount > 0);
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Kontribusi Tabungan</h2>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-6">
+          {/* Goal Info */}
+          <div className="flex items-center space-x-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg mb-6">
+            <div
+              className="w-12 h-12 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: goal.color + '20' }}
+            >
+              <PiggyBank 
+                className="w-6 h-6"
+                style={{ color: goal.color }}
+              />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-medium text-gray-900 dark:text-white">{goal.name}</h3>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                <p>{formatRupiah(goal.current_amount)} / {formatRupiah(goal.target_amount)}</p>
+                <p>Sisa: {formatRupiah(remainingAmount)} ({(100 - progress).toFixed(1)}%)</p>
+              </div>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Jumlah Kontribusi (Rp)
+              </label>
+              <input
+                type="number"
+                id="amount"
+                step="1000"
+                min="1"
+                required
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                placeholder="0"
+              />
+            </div>
+
+            {/* Quick Amount Buttons */}
+            {quickAmounts.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Jumlah Cepat
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {quickAmounts.map((quickAmount, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setAmount(quickAmount.toString())}
+                      className="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors text-gray-900 dark:text-white"
+                    >
+                      {index === quickAmounts.length - 1 ? 'Sisa Target' : formatRupiah(quickAmount)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Deskripsi Transaksi
+              </label>
+              <input
+                type="text"
+                id="description"
+                required
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                placeholder="Deskripsi kontribusi"
+              />
+            </div>
+
+            {/* Preview */}
+            {amount && (
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <div className="flex items-center space-x-2 mb-2">
+                  <DollarSign className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <span className="font-medium text-blue-900 dark:text-blue-200">{t('common.preview')} Kontribusi</span>
+                </div>
+                <div className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+                  <p>Jumlah: {formatRupiah(parseFloat(amount))}</p>
+                  <p>Setelah kontribusi: {formatRupiah(goal.current_amount + parseFloat(amount))}</p>
+                  <p>Progress: {((goal.current_amount + parseFloat(amount)) / goal.target_amount * 100).toFixed(1)}%</p>
+                </div>
+              </div>
+            )}
+
+            <div className="flex space-x-3 pt-4">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={loading}
+                className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 px-4 py-2 text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? t('common.processing') : t('savings.contribute')}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ContributeModal;
