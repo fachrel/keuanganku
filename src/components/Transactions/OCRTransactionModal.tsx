@@ -5,7 +5,7 @@ import { useAccounts } from '../../hooks/useAccounts';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import { formatRupiah } from '../../utils/currency';
-import { geminiAI, type OCRResponse } from '../../services/geminiAI';
+import { ocrService, OCRResponse } from '../../services/ocrService';
 
 interface OCRTransactionModalProps {
   isOpen: boolean;
@@ -25,6 +25,10 @@ const OCRTransactionModal: React.FC<OCRTransactionModalProps> = ({ isOpen, onClo
   const [extractedData, setExtractedData] = useState<OCRResponse | null>(null);
   const [showRawText, setShowRawText] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
+  const [configStatus, setConfigStatus] = useState<{ isConfigured: boolean; missingConfig: string[] }>({
+    isConfigured: false,
+    missingConfig: [],
+  });
   const [formData, setFormData] = useState({
     amount: '',
     description: '',
@@ -38,6 +42,7 @@ const OCRTransactionModal: React.FC<OCRTransactionModalProps> = ({ isOpen, onClo
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      checkConfigStatus();
     } else {
       document.body.style.overflow = 'unset';
     }
@@ -47,15 +52,26 @@ const OCRTransactionModal: React.FC<OCRTransactionModalProps> = ({ isOpen, onClo
     };
   }, [isOpen]);
 
-  // Check Gemini AI configuration
-  const configStatus = geminiAI.getConfigStatus();
+  // Check OCR configuration status
+  const checkConfigStatus = async () => {
+    try {
+      const status = await ocrService.getConfigStatus();
+      setConfigStatus(status);
+    } catch (error) {
+      console.error('Error checking OCR configuration:', error);
+      setConfigStatus({
+        isConfigured: false,
+        missingConfig: ['Connection error'],
+      });
+    }
+  };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     // Validate file
-    const validation = geminiAI.validateImage(file);
+    const validation = ocrService.validateImage(file);
     if (!validation.isValid) {
       showError('File tidak valid', validation.error || 'Format file tidak didukung');
       return;
@@ -76,12 +92,12 @@ const OCRTransactionModal: React.FC<OCRTransactionModalProps> = ({ isOpen, onClo
   };
 
   const handleProcessImage = async () => {
-    if (!selectedFile) return;
+    if (!selectedFile || !user) return;
 
     if (!configStatus.isConfigured) {
       showError(
-        'Gemini AI belum dikonfigurasi',
-        'Silakan tambahkan VITE_GEMINI_API_KEY ke environment variables'
+        'OCR belum dikonfigurasi',
+        'Silakan hubungi administrator untuk mengaktifkan fitur OCR'
       );
       setShowConfig(true);
       return;
@@ -91,7 +107,7 @@ const OCRTransactionModal: React.FC<OCRTransactionModalProps> = ({ isOpen, onClo
     try {
       showInfo('Memproses gambar...', 'AI sedang menganalisis receipt Anda');
       
-      const result = await geminiAI.extractTransactionData(selectedFile, categories);
+      const result = await ocrService.extractTransactionData(selectedFile, user.id);
       setExtractedData(result);
       
       // Pre-fill form with extracted data
@@ -212,7 +228,7 @@ const OCRTransactionModal: React.FC<OCRTransactionModalProps> = ({ isOpen, onClo
         {showConfig && (
           <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              Gemini AI Configuration
+              OCR Configuration
             </h3>
             
             {configStatus.isConfigured ? (
@@ -220,7 +236,7 @@ const OCRTransactionModal: React.FC<OCRTransactionModalProps> = ({ isOpen, onClo
                 <div className="flex items-center space-x-2">
                   <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
                   <span className="font-medium text-green-900 dark:text-green-200">
-                    Gemini AI is properly configured
+                    OCR is properly configured
                   </span>
                 </div>
                 <p className="text-sm text-green-800 dark:text-green-200 mt-2">
@@ -236,7 +252,7 @@ const OCRTransactionModal: React.FC<OCRTransactionModalProps> = ({ isOpen, onClo
                   </span>
                 </div>
                 <div className="text-sm text-yellow-800 dark:text-yellow-200 space-y-2">
-                  <p>Missing environment variables:</p>
+                  <p>Server-side OCR is not configured:</p>
                   <ul className="list-disc list-inside space-y-1">
                     {configStatus.missingConfig.map((config) => (
                       <li key={config} className="font-mono">{config}</li>
@@ -246,8 +262,8 @@ const OCRTransactionModal: React.FC<OCRTransactionModalProps> = ({ isOpen, onClo
                     <p className="font-medium mb-2">Setup Instructions:</p>
                     <ol className="list-decimal list-inside space-y-1 text-xs">
                       <li>Get a Gemini API key from <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 underline">Google AI Studio</a></li>
-                      <li>Add <code className="bg-yellow-200 dark:bg-yellow-800 px-1 rounded">VITE_GEMINI_API_KEY=your_api_key</code> to your .env file</li>
-                      <li>Restart the development server</li>
+                      <li>Add the API key to your Supabase project's environment variables</li>
+                      <li>Deploy the Edge Function to your Supabase project</li>
                     </ol>
                   </div>
                 </div>
