@@ -54,6 +54,8 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       document.body.style.top = `-${scrollY}px`;
       document.body.style.position = 'fixed';
       document.body.style.width = '100%';
+      document.body.style.height = '100%';
+      document.body.style.overflow = 'hidden';
     } else {
       // Restore scrolling
       const scrollY = document.body.style.top;
@@ -61,6 +63,8 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.width = '';
+      document.body.style.height = '';
+      document.body.style.overflow = '';
       
       // Restore scroll position
       if (scrollY) {
@@ -74,6 +78,8 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.width = '';
+      document.body.style.height = '';
+      document.body.style.overflow = '';
     };
   }, [isModalOpen]);
 

@@ -220,7 +220,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
 
   return (
     <div 
-      className="modal-container bg-black bg-opacity-50"
+      className="modal-container"
       onClick={handleBackdropClick}
     >
       <div className="modal-content max-w-md w-full">
@@ -235,7 +235,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
         </div>
 
         <div className="modal-body">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form className="space-y-6">
             {/* Transaction Type */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">

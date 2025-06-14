@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { X, Upload, Camera, FileText, Loader, CheckCircle, AlertTriangle, Eye, EyeOff, Settings } from 'lucide-react';
 import { useTransactions } from '../../hooks/useTransactions';
 import { useAccounts } from '../../hooks/useAccounts';
@@ -33,6 +33,19 @@ const OCRTransactionModal: React.FC<OCRTransactionModalProps> = ({ isOpen, onClo
     date: new Date().toISOString().split('T')[0],
     account_id: '',
   });
+
+  // Handle body scroll when modal opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   // Check Gemini AI configuration
   const configStatus = geminiAI.getConfigStatus();
@@ -165,7 +178,7 @@ const OCRTransactionModal: React.FC<OCRTransactionModalProps> = ({ isOpen, onClo
 
   return (
     <div 
-      className="modal-container bg-black bg-opacity-50"
+      className="modal-container"
       onClick={handleBackdropClick}
     >
       <div className="modal-content max-w-6xl w-full">

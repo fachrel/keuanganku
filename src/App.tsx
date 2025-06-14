@@ -22,7 +22,7 @@ const GlobalStyles = () => {
     // Add a meta tag for mobile viewport
     const metaTag = document.createElement('meta');
     metaTag.name = 'viewport';
-    metaTag.content = 'width=device-width, initial-scale=1.0, viewport-fit=cover';
+    metaTag.content = 'width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no';
     document.head.appendChild(metaTag);
     
     // Add a style tag to handle modal backdrops
@@ -35,6 +35,7 @@ const GlobalStyles = () => {
       body {
         min-height: 100vh;
         min-height: -webkit-fill-available;
+        position: relative;
       }
       
       .modal-open {
@@ -42,6 +43,13 @@ const GlobalStyles = () => {
         position: fixed;
         width: 100%;
         height: 100%;
+      }
+
+      /* Fix for iOS Safari bottom bar */
+      @supports (padding-bottom: env(safe-area-inset-bottom)) {
+        .modal-footer {
+          padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+        }
       }
     `;
     document.head.appendChild(styleTag);
