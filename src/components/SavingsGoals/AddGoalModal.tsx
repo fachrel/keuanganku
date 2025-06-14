@@ -107,8 +107,7 @@ const AddGoalModal: React.FC<AddGoalModalProps> = ({ onClose, onAddGoal }) => {
             <input
               type="number"
               id="target_amount"
-              step="10000"
-              min="1"
+              min="10000"
               required
               value={formData.target_amount}
               onChange={(e) => setFormData({ ...formData, target_amount: e.target.value })}
