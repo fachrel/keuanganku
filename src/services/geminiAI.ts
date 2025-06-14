@@ -40,7 +40,7 @@ class GeminiAIService {
   constructor() {
     this.config = {
       apiKey: import.meta.env.VITE_GEMINI_API_KEY || '',
-      model: 'gemini-1.5-pro-vision-latest',
+      model: 'gemini-2.0-flash-exp',
       maxTokens: 2048,
     };
   }
