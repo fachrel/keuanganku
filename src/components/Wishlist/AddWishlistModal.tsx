@@ -368,4 +368,4 @@ const AddWishlistModal: React.FC<AddWishlistModalProps> = ({ isOpen, onClose }) 
   );
 };
 
-export default AddGoalModal;
+export default AddWishlistModal;
