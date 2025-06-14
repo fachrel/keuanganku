@@ -74,23 +74,7 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
       // Get or create transfer category
       const transferCategoryId = await getOrCreateTransferCategory();
       
-      // Update source account balance directly
-      const { error: sourceError } = await supabase
-        .from('accounts')
-        .update({ balance: sourceAccount.balance - transferAmount })
-        .eq('id', sourceAccount.id);
-        
-      if (sourceError) throw sourceError;
-      
-      // Update destination account balance directly
-      const { error: destError } = await supabase
-        .from('accounts')
-        .update({ balance: destinationAccount.balance + transferAmount })
-        .eq('id', destinationAccount.id);
-        
-      if (destError) throw destError;
-      
-      // Create transfer records for history tracking
+      // Create transfer records - the database triggers will handle balance updates automatically
       const { error: transferError } = await supabase
         .from('transactions')
         .insert([
@@ -445,10 +429,10 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
           >
             Transfer Dana
           </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
 export default TransferModal;
