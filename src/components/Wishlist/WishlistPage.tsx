@@ -8,7 +8,6 @@ import {
   DollarSign,
   Filter,
   Search,
-  Clock,
   Target,
   TrendingUp,
   RefreshCw
@@ -99,69 +98,70 @@ const WishlistPage: React.FC = () => {
             className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
+            <span className="hidden sm:inline">Refresh</span>
           </button>
           <button
             onClick={() => openModal('addWishlist')}
             className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-lg hover:from-pink-700 hover:to-purple-700 transition-all duration-200"
           >
             <Plus className="w-4 h-4" />
-            <span>Tambah Item</span>
+            <span className="hidden sm:inline">Tambah Item</span>
+            <span className="sm:hidden">Add</span>
           </button>
         </div>
       </div>
 
       {/* Overview Cards */}
       {activeItems.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Item</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{activeItems.length}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Total Item</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white">{activeItems.length}</p>
               </div>
-              <div className="w-12 h-12 bg-pink-100 dark:bg-pink-900/20 rounded-lg flex items-center justify-center">
-                <Heart className="w-6 h-6 text-pink-600 dark:text-pink-400" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-pink-100 dark:bg-pink-900/20 rounded-lg flex items-center justify-center">
+                <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-pink-600 dark:text-pink-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Biaya</p>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{formatRupiah(totalCost)}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Total Biaya</p>
+                <p className="text-lg sm:text-2xl font-bold text-blue-600 dark:text-blue-400">{formatRupiah(totalCost)}</p>
               </div>
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Prioritas Tinggi</p>
-                <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Prioritas Tinggi</p>
+                <p className="text-lg sm:text-2xl font-bold text-red-600 dark:text-red-400">
                   {highPriorityItems.length}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-red-100 dark:bg-red-900/20 rounded-lg flex items-center justify-center">
-                <AlertTriangle className="w-6 h-6 text-red-600 dark:text-red-400" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 dark:bg-red-900/20 rounded-lg flex items-center justify-center">
+                <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 dark:text-red-400" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Mendekati Deadline</p>
-                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Mendekati Deadline</p>
+                <p className="text-lg sm:text-2xl font-bold text-orange-600 dark:text-orange-400">
                   {upcomingItems.length}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center">
-                <Clock className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center">
+                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 dark:text-orange-400" />
               </div>
             </div>
           </div>
@@ -196,10 +196,10 @@ const WishlistPage: React.FC = () => {
       {/* Tabs */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="border-b border-gray-200 dark:border-gray-700">
-          <nav className="flex space-x-8 px-6">
+          <nav className="flex space-x-8 px-4 sm:px-6 overflow-x-auto scrollbar-hide">
             <button
               onClick={() => setActiveTab('active')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
                 activeTab === 'active'
                   ? 'border-pink-500 text-pink-600 dark:text-pink-400'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
@@ -209,7 +209,7 @@ const WishlistPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('archived')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors ${
                 activeTab === 'archived'
                   ? 'border-pink-500 text-pink-600 dark:text-pink-400'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
@@ -221,7 +221,7 @@ const WishlistPage: React.FC = () => {
         </div>
 
         {/* Filters */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
@@ -237,7 +237,7 @@ const WishlistPage: React.FC = () => {
             </div>
             {activeTab === 'active' && (
               <div className="flex items-center space-x-2">
-                <Filter className="w-4 h-4 text-gray-400" />
+                <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
                 <select
                   value={urgencyFilter}
                   onChange={(e) => setUrgencyFilter(e.target.value as any)}
@@ -254,9 +254,9 @@ const WishlistPage: React.FC = () => {
         </div>
 
         {/* Items List */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {filteredItems.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {filteredItems.map((item) => (
                 <WishlistItemCard
                   key={item.id}
@@ -299,7 +299,7 @@ const WishlistPage: React.FC = () => {
 
       {/* Anti-Impulse Tips */}
       {activeItems.length > 0 && (
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-6">
+        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 sm:p-6">
           <div className="flex items-start space-x-3">
             <Target className="w-6 h-6 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
             <div>

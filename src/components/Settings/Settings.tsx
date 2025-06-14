@@ -88,20 +88,20 @@ const Settings: React.FC = () => {
             className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
-            <span>Refresh</span>
+            <span className="hidden sm:inline">Refresh</span>
           </button>
         </div>
       </div>
 
       {/* Account Information */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
         <div className="flex items-center space-x-3 mb-6">
-          <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-            <User className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <User className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('settings.accountInfo')}</h2>
-            <p className="text-gray-600 dark:text-gray-400">{t('settings.accountDesc')}</p>
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">{t('settings.accountInfo')}</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{t('settings.accountDesc')}</p>
           </div>
         </div>
 
@@ -128,19 +128,19 @@ const Settings: React.FC = () => {
       </div>
 
       {/* Data Management */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
         <div className="flex items-center space-x-3 mb-6">
-          <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
-            <Download className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+            <Download className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('settings.dataManagement')}</h2>
-            <p className="text-gray-600 dark:text-gray-400">{t('settings.dataDesc')}</p>
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">{t('settings.dataManagement')}</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{t('settings.dataDesc')}</p>
           </div>
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg gap-4">
             <div>
               <h3 className="font-medium text-gray-900 dark:text-white">{t('settings.exportData')}</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">{t('settings.exportDesc')}</p>
@@ -158,19 +158,19 @@ const Settings: React.FC = () => {
       </div>
 
       {/* Danger Zone */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-red-200 dark:border-red-800 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-red-200 dark:border-red-800 p-4 sm:p-6">
         <div className="flex items-center space-x-3 mb-6">
-          <div className="w-12 h-12 bg-red-100 dark:bg-red-900/20 rounded-lg flex items-center justify-center">
-            <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 dark:bg-red-900/20 rounded-lg flex items-center justify-center">
+            <Trash2 className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 dark:text-red-400" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-red-900 dark:text-red-400">{t('settings.dangerZone')}</h2>
-            <p className="text-red-600 dark:text-red-400">{t('settings.dangerDesc')}</p>
+            <h2 className="text-base sm:text-lg font-semibold text-red-900 dark:text-red-400">{t('settings.dangerZone')}</h2>
+            <p className="text-sm text-red-600 dark:text-red-400">{t('settings.dangerDesc')}</p>
           </div>
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800 gap-4">
             <div>
               <h3 className="font-medium text-red-900 dark:text-red-400">{t('settings.deleteAllData')}</h3>
               <p className="text-sm text-red-600 dark:text-red-400">
@@ -187,7 +187,7 @@ const Settings: React.FC = () => {
             </button>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800 gap-4">
             <div>
               <h3 className="font-medium text-red-900 dark:text-red-400">{t('settings.logout')}</h3>
               <p className="text-sm text-red-600 dark:text-red-400">{t('settings.logoutDesc')}</p>

@@ -24,7 +24,7 @@ const CategoryList: React.FC = () => {
   const handleDeleteCategory = async (id: string, name: string) => {
     if (window.confirm(`${t('categories.deleteConfirm')} "${name}"? Tindakan ini tidak dapat dibatalkan.`)) {
       setDeletingCategory(id);
-      const success = await deleteCategory(id);
+      await deleteCategory(id);
       setDeletingCategory(null);
     }
   };
@@ -86,24 +86,25 @@ const CategoryList: React.FC = () => {
             className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
+            <span className="hidden sm:inline">Refresh</span>
           </button>
           <button
             onClick={handleAddCategory}
             className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
           >
             <Plus className="w-4 h-4" />
-            <span>{t('categories.addCategory')}</span>
+            <span className="hidden sm:inline">{t('categories.addCategory')}</span>
+            <span className="sm:hidden">Add</span>
           </button>
         </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <div className="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+        <div className="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg overflow-x-auto scrollbar-hide">
           <button
             onClick={() => setFilterType('all')}
-            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
               filterType === 'all'
                 ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
@@ -113,7 +114,7 @@ const CategoryList: React.FC = () => {
           </button>
           <button
             onClick={() => setFilterType('income')}
-            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
               filterType === 'income'
                 ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
@@ -123,7 +124,7 @@ const CategoryList: React.FC = () => {
           </button>
           <button
             onClick={() => setFilterType('expense')}
-            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors whitespace-nowrap ${
               filterType === 'expense'
                 ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
@@ -149,25 +150,25 @@ const CategoryList: React.FC = () => {
 
       {/* Categories Grid */}
       {filteredCategories.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredCategories.map((category) => (
             <div
               key={category.id}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow group"
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 hover:shadow-md transition-shadow group"
             >
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-3 flex-1">
+                <div className="flex items-center space-x-3 flex-1 min-w-0">
                   <div
-                    className="w-12 h-12 rounded-lg flex items-center justify-center"
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center flex-shrink-0"
                     style={{ backgroundColor: category.color + '20' }}
                   >
                     <div
-                      className="w-6 h-6 rounded-full"
+                      className="w-5 h-5 sm:w-6 sm:h-6 rounded-full"
                       style={{ backgroundColor: category.color }}
                     />
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">{category.name}</h3>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white truncate">{category.name}</h3>
                     <div className="flex items-center space-x-2">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -222,7 +223,7 @@ const CategoryList: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 sm:p-12 text-center">
           <Tag className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('categories.noCategories')}</h3>
           <p className="text-gray-500 dark:text-gray-400 mb-4">

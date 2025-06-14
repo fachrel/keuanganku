@@ -7,7 +7,6 @@ import {
   ArchiveRestore,
   Trash2,
   AlertTriangle,
-  Clock,
   Image as ImageIcon
 } from 'lucide-react';
 import { WishlistItem } from '../../types';
@@ -110,11 +109,11 @@ const WishlistItemCard: React.FC<WishlistItemCardProps> = ({ item, onEdit }) => 
       <div className="p-4">
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1 line-clamp-2">
               {item.name}
             </h3>
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getUrgencyColor(item.urgency)}`}>
                 {getUrgencyLabel(item.urgency)}
               </span>
@@ -172,14 +171,20 @@ const WishlistItemCard: React.FC<WishlistItemCardProps> = ({ item, onEdit }) => 
         <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-2">
             <button
-              onClick={onEdit}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
               className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
               title="Edit item"
             >
               <Edit className="w-4 h-4" />
             </button>
             <button
-              onClick={handleArchive}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleArchive();
+              }}
               className="p-2 text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-lg transition-colors"
               title={item.is_archived ? 'Kembalikan dari arsip' : 'Arsipkan item'}
             >
@@ -190,7 +195,10 @@ const WishlistItemCard: React.FC<WishlistItemCardProps> = ({ item, onEdit }) => 
               )}
             </button>
             <button
-              onClick={handleDelete}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete();
+              }}
               className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
               title="Hapus item"
             >

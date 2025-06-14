@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Calendar, Filter, Search } from 'lucide-react';
+import { ArrowRight, Calendar, Filter, Search, Clock } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { formatRupiah } from '../../utils/currency';
@@ -141,7 +141,7 @@ const TransferHistory: React.FC<TransferHistoryProps> = ({ accounts }) => {
 
         {/* Date Filter */}
         <div className="flex items-center space-x-2">
-          <Filter className="w-4 h-4 text-gray-400" />
+          <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
           <select
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
@@ -159,24 +159,24 @@ const TransferHistory: React.FC<TransferHistoryProps> = ({ accounts }) => {
         <div className="space-y-3">
           {filteredTransfers.map((transfer) => (
             <div key={transfer.id} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4 flex-1">
-                  <div className="flex items-center space-x-2">
-                    <div className="text-sm">
-                      <span className="font-medium text-gray-900 dark:text-white">{transfer.sourceAccount}</span>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center space-x-4 flex-1 min-w-0">
+                  <div className="flex items-center space-x-2 flex-1 min-w-0">
+                    <div className="text-sm truncate">
+                      <span className="font-medium text-gray-900 dark:text-white truncate">{transfer.sourceAccount}</span>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                    <div className="text-sm">
-                      <span className="font-medium text-gray-900 dark:text-white">{transfer.destinationAccount}</span>
+                    <ArrowRight className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                    <div className="text-sm truncate">
+                      <span className="font-medium text-gray-900 dark:text-white truncate">{transfer.destinationAccount}</span>
                     </div>
                   </div>
                 </div>
                 
-                <div className="text-right">
+                <div className="text-right flex-shrink-0">
                   <div className="text-lg font-semibold text-blue-600 dark:text-blue-400">
                     {formatRupiah(transfer.amount)}
                   </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+                  <div className="flex items-center justify-end space-x-2 text-sm text-gray-500 dark:text-gray-400">
                     <Calendar className="w-4 h-4" />
                     <span>{new Date(transfer.date).toLocaleDateString('id-ID')}</span>
                   </div>

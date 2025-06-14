@@ -160,21 +160,22 @@ const Reports: React.FC = () => {
             className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
+            <span className="hidden sm:inline">Refresh</span>
           </button>
           <button
             onClick={exportData}
             className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
           >
             <Download className="w-4 h-4" />
-            <span>{t('reports.exportData')}</span>
+            <span className="hidden sm:inline">{t('reports.exportData')}</span>
+            <span className="sm:hidden">Export</span>
           </button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {t('reports.startDate')}
@@ -229,67 +230,67 @@ const Reports: React.FC = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+              <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
                 {reportType === 'expense' ? t('reports.totalExpenses') : t('reports.totalIncome')}
               </p>
-              <p className={`text-2xl font-bold ${reportType === 'expense' ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
+              <p className={`text-lg sm:text-2xl font-bold ${reportType === 'expense' ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
                 {formatRupiah(totalAmount)}
               </p>
             </div>
-            <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center ${
               reportType === 'expense' ? 'bg-red-100 dark:bg-red-900/20' : 'bg-green-100 dark:bg-green-900/20'
             }`}>
-              <TrendingUp className={`w-6 h-6 ${reportType === 'expense' ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`} />
+              <TrendingUp className={`w-5 h-5 sm:w-6 sm:h-6 ${reportType === 'expense' ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`} />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('reports.transactionCount')}</p>
-              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{filteredTransactions.length}</p>
+              <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">{t('reports.transactionCount')}</p>
+              <p className="text-lg sm:text-2xl font-bold text-blue-600 dark:text-blue-400">{filteredTransactions.length}</p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
-              <BarChart3 className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+              <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('reports.averagePerTransaction')}</p>
-              <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+              <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">{t('reports.averagePerTransaction')}</p>
+              <p className="text-lg sm:text-2xl font-bold text-purple-600 dark:text-purple-400">
                 {formatRupiah(filteredTransactions.length > 0 ? totalAmount / filteredTransactions.length : 0)}
               </p>
             </div>
-            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
-              <PieChart className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
+              <PieChart className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600 dark:text-purple-400" />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Pie Chart */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {reportType === 'expense' ? t('reports.expenseDistribution') : t('reports.incomeDistribution')}
           </h3>
           {pieChartData.length > 0 ? (
-            <div className="h-80">
+            <div className="h-64 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <RechartsPieChart>
                   <Pie
                     data={pieChartData}
                     cx="50%"
                     cy="50%"
-                    outerRadius={100}
+                    outerRadius={80}
                     dataKey="amount"
                     label={({ name, percentage }) => `${name}: ${percentage.toFixed(1)}%`}
                   >
@@ -310,19 +311,19 @@ const Reports: React.FC = () => {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
+            <div className="h-64 sm:h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
               {t('reports.noDataAvailable')}
             </div>
           )}
         </div>
 
         {/* Monthly Trend */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {t('reports.monthlyTrend')}
           </h3>
           {monthlyData.length > 0 ? (
-            <div className="h-80">
+            <div className="h-64 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={monthlyData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
@@ -346,7 +347,7 @@ const Reports: React.FC = () => {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
+            <div className="h-64 sm:h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
               {t('reports.noDataAvailable')}
             </div>
           )}
@@ -355,63 +356,65 @@ const Reports: React.FC = () => {
 
       {/* Detailed Table */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
             {t('reports.categoryDetails')}
           </h3>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  {t('reports.category')}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  {t('reports.transactionCount')}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  {t('reports.totalAmount')}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  {t('reports.percentage')}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  {t('reports.average')}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {pieChartData.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center space-x-3">
-                      <div
-                        className="w-4 h-4 rounded-full"
-                        style={{ backgroundColor: item.color }}
-                      />
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">{item.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {item.count}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                    {formatRupiah(item.amount)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {item.percentage.toFixed(1)}%
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                    {formatRupiah(item.amount / item.count)}
-                  </td>
+          <div className="inline-block min-w-full align-middle">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-gray-50 dark:bg-gray-700">
+                <tr>
+                  <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    {t('reports.category')}
+                  </th>
+                  <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    {t('reports.transactionCount')}
+                  </th>
+                  <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    {t('reports.totalAmount')}
+                  </th>
+                  <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    {t('reports.percentage')}
+                  </th>
+                  <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    {t('reports.average')}
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                {pieChartData.map((item) => (
+                  <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center space-x-3">
+                        <div
+                          className="w-4 h-4 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: item.color }}
+                        />
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">{item.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {item.count}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                      {formatRupiah(item.amount)}
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {item.percentage.toFixed(1)}%
+                    </td>
+                    <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      {formatRupiah(item.amount / item.count)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         {pieChartData.length === 0 && (
-          <div className="p-12 text-center">
+          <div className="p-8 sm:p-12 text-center">
             <PieChart className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('reports.noData')}</h3>
             <p className="text-gray-500 dark:text-gray-400">

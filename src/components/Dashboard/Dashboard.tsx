@@ -17,7 +17,7 @@ import {
   RefreshCw,
   Clock
 } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, Area, AreaChart } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Area, AreaChart } from 'recharts';
 import { useTransactions } from '../../hooks/useTransactions';
 import { useBudgets } from '../../hooks/useBudgets';
 import { useSavingsGoals } from '../../hooks/useSavingsGoals';
@@ -268,14 +268,14 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('dashboard.title')}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{t('dashboard.title')}</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">{t('dashboard.subtitle')}</p>
         </div>
         <div className="flex items-center space-x-4 mt-4 sm:mt-0">
-          <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+          <div className="hidden sm:flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
             <Clock className="w-4 h-4" />
             <span>Last sync: {lastSyncTime.toLocaleTimeString('id-ID')}</span>
           </div>
@@ -285,114 +285,114 @@ const Dashboard: React.FC = () => {
             className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
+            <span className="hidden sm:inline">Refresh</span>
           </button>
         </div>
       </div>
 
-      {/* Enhanced Main Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Main Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Balance from Accounts */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Balance (Accounts)</p>
-              <p className={`text-2xl font-bold ${stats.totalBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+              <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">Total Balance</p>
+              <p className={`text-lg sm:text-2xl font-bold ${stats.totalBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                 {formatRupiah(stats.totalBalance)}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 hidden sm:block">
                 Across {accounts.length} account{accounts.length !== 1 ? 's' : ''}
               </p>
             </div>
-            <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center ${
               stats.totalBalance >= 0 ? 'bg-green-100 dark:bg-green-900/20' : 'bg-red-100 dark:bg-red-900/20'
             }`}>
-              <DollarSign className={`w-6 h-6 ${stats.totalBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`} />
+              <DollarSign className={`w-5 h-5 sm:w-6 sm:h-6 ${stats.totalBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`} />
             </div>
           </div>
         </div>
 
         {/* Monthly Income */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.monthlyIncome')}</p>
-              <p className="text-2xl font-bold text-green-600 dark:text-green-400">{formatRupiah(stats.totalIncome)}</p>
-              <div className="flex items-center mt-2">
+              <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.monthlyIncome')}</p>
+              <p className="text-lg sm:text-2xl font-bold text-green-600 dark:text-green-400">{formatRupiah(stats.totalIncome)}</p>
+              <div className="flex items-center mt-1 sm:mt-2">
                 {stats.incomeChange >= 0 ? (
-                  <ArrowUpRight className="w-4 h-4 text-green-500" />
+                  <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
                 ) : (
-                  <ArrowDownRight className="w-4 h-4 text-red-500" />
+                  <ArrowDownRight className="w-3 h-3 sm:w-4 sm:h-4 text-red-500" />
                 )}
-                <span className={`text-sm ml-1 ${stats.incomeChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                <span className={`text-xs sm:text-sm ml-1 ${stats.incomeChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                   {Math.abs(stats.incomeChange).toFixed(1)}%
                 </span>
               </div>
             </div>
-            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 dark:text-green-400" />
             </div>
           </div>
         </div>
 
         {/* Monthly Expenses */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.monthlyExpenses')}</p>
-              <p className="text-2xl font-bold text-red-600 dark:text-red-400">{formatRupiah(stats.totalExpenses)}</p>
-              <div className="flex items-center mt-2">
+              <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.monthlyExpenses')}</p>
+              <p className="text-lg sm:text-2xl font-bold text-red-600 dark:text-red-400">{formatRupiah(stats.totalExpenses)}</p>
+              <div className="flex items-center mt-1 sm:mt-2">
                 {stats.expenseChange >= 0 ? (
-                  <ArrowUpRight className="w-4 h-4 text-red-500" />
+                  <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 text-red-500" />
                 ) : (
-                  <ArrowDownRight className="w-4 h-4 text-green-500" />
+                  <ArrowDownRight className="w-3 h-3 sm:w-4 sm:h-4 text-green-500" />
                 )}
-                <span className={`text-sm ml-1 ${stats.expenseChange >= 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
+                <span className={`text-xs sm:text-sm ml-1 ${stats.expenseChange >= 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
                   {Math.abs(stats.expenseChange).toFixed(1)}%
                 </span>
               </div>
             </div>
-            <div className="w-12 h-12 bg-red-100 dark:bg-red-900/20 rounded-lg flex items-center justify-center">
-              <TrendingDown className="w-6 h-6 text-red-600 dark:text-red-400" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-100 dark:bg-red-900/20 rounded-lg flex items-center justify-center">
+              <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 dark:text-red-400" />
             </div>
           </div>
         </div>
 
         {/* Savings Progress */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.savingsProgress')}</p>
-              <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{savingsProgress.overallProgress.toFixed(1)}%</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {savingsProgress.completedGoals} dari {savingsProgress.totalGoals} {t('dashboard.goalsCompleted')}
+              <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.savingsProgress')}</p>
+              <p className="text-lg sm:text-2xl font-bold text-blue-600 dark:text-blue-400">{savingsProgress.overallProgress.toFixed(1)}%</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {savingsProgress.completedGoals} / {savingsProgress.totalGoals} {t('dashboard.goalsCompleted')}
               </p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
-              <PiggyBank className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+              <PiggyBank className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Financial Health Indicators */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.savingsRate')}</p>
-              <p className={`text-2xl font-bold ${stats.savingsRate >= 20 ? 'text-green-600 dark:text-green-400' : stats.savingsRate >= 10 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
+              <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.savingsRate')}</p>
+              <p className={`text-lg sm:text-2xl font-bold ${stats.savingsRate >= 20 ? 'text-green-600 dark:text-green-400' : stats.savingsRate >= 10 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
                 {stats.savingsRate.toFixed(1)}%
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {stats.savingsRate >= 20 ? 'Excellent' : stats.savingsRate >= 10 ? 'Good' : 'Needs Improvement'}
               </p>
             </div>
-            <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center ${
               stats.savingsRate >= 20 ? 'bg-green-100 dark:bg-green-900/20' : 
               stats.savingsRate >= 10 ? 'bg-yellow-100 dark:bg-yellow-900/20' : 'bg-red-100 dark:bg-red-900/20'
             }`}>
-              <Percent className={`w-6 h-6 ${
+              <Percent className={`w-5 h-5 sm:w-6 sm:h-6 ${
                 stats.savingsRate >= 20 ? 'text-green-600 dark:text-green-400' : 
                 stats.savingsRate >= 10 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'
               }`} />
@@ -400,22 +400,22 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.budgetUtilization')}</p>
-              <p className={`text-2xl font-bold ${budgetUtilization <= 80 ? 'text-green-600 dark:text-green-400' : budgetUtilization <= 95 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
+              <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.budgetUtilization')}</p>
+              <p className={`text-lg sm:text-2xl font-bold ${budgetUtilization <= 80 ? 'text-green-600 dark:text-green-400' : budgetUtilization <= 95 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
                 {budgetUtilization.toFixed(1)}%
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {budgetUtilization <= 80 ? 'On Track' : budgetUtilization <= 95 ? 'Close to Limit' : 'Over Budget'}
               </p>
             </div>
-            <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center ${
               budgetUtilization <= 80 ? 'bg-green-100 dark:bg-green-900/20' : 
               budgetUtilization <= 95 ? 'bg-yellow-100 dark:bg-yellow-900/20' : 'bg-red-100 dark:bg-red-900/20'
             }`}>
-              <Target className={`w-6 h-6 ${
+              <Target className={`w-5 h-5 sm:w-6 sm:h-6 ${
                 budgetUtilization <= 80 ? 'text-green-600 dark:text-green-400' : 
                 budgetUtilization <= 95 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'
               }`} />
@@ -423,11 +423,11 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.financialHealth')}</p>
-              <p className={`text-2xl font-bold ${
+              <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.financialHealth')}</p>
+              <p className={`text-lg sm:text-2xl font-bold ${
                 stats.savingsRate >= 15 && budgetUtilization <= 85 ? 'text-green-600 dark:text-green-400' : 
                 stats.savingsRate >= 5 && budgetUtilization <= 95 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'
               }`}>
@@ -436,11 +436,11 @@ const Dashboard: React.FC = () => {
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Overall Score</p>
             </div>
-            <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center ${
               stats.savingsRate >= 15 && budgetUtilization <= 85 ? 'bg-green-100 dark:bg-green-900/20' : 
               stats.savingsRate >= 5 && budgetUtilization <= 95 ? 'bg-yellow-100 dark:bg-yellow-900/20' : 'bg-red-100 dark:bg-red-900/20'
             }`}>
-              <Activity className={`w-6 h-6 ${
+              <Activity className={`w-5 h-5 sm:w-6 sm:h-6 ${
                 stats.savingsRate >= 15 && budgetUtilization <= 85 ? 'text-green-600 dark:text-green-400' : 
                 stats.savingsRate >= 5 && budgetUtilization <= 95 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'
               }`} />
@@ -449,11 +449,11 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Budget Status */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('dashboard.budgetStatus')}</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">{t('dashboard.budgetStatus')}</h2>
             <Target className="w-5 h-5 text-gray-400" />
           </div>
           {budgetProgress.length > 0 ? (
@@ -461,12 +461,12 @@ const Dashboard: React.FC = () => {
               {budgetProgress.map((budget) => (
                 <div key={budget.id} className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 max-w-[60%]">
                       <div
-                        className="w-3 h-3 rounded-full"
+                        className="w-3 h-3 rounded-full flex-shrink-0"
                         style={{ backgroundColor: budget.category?.color }}
                       />
-                      <span className="font-medium text-gray-900 dark:text-white">
+                      <span className="font-medium text-gray-900 dark:text-white truncate">
                         {budget.category?.name || 'Unknown Category'}
                       </span>
                     </div>
@@ -507,9 +507,9 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Savings Goals */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('dashboard.savingsGoals')}</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">{t('dashboard.savingsGoals')}</h2>
             <PiggyBank className="w-5 h-5 text-gray-400" />
           </div>
           {savingsProgress.activeGoals.length > 0 ? (
@@ -519,12 +519,12 @@ const Dashboard: React.FC = () => {
                 return (
                   <div key={goal.id} className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 max-w-[60%]">
                         <div
-                          className="w-3 h-3 rounded-full"
+                          className="w-3 h-3 rounded-full flex-shrink-0"
                           style={{ backgroundColor: goal.color }}
                         />
-                        <span className="font-medium text-gray-900 dark:text-white">{goal.name}</span>
+                        <span className="font-medium text-gray-900 dark:text-white truncate">{goal.name}</span>
                       </div>
                       <span className="font-medium text-gray-600 dark:text-gray-400">{progress.toFixed(0)}%</span>
                     </div>
@@ -551,18 +551,18 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Recent Transactions */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t('dashboard.recentTransactions')}</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
+            <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">{t('dashboard.recentTransactions')}</h2>
             <Calendar className="w-5 h-5 text-gray-400" />
           </div>
           {recentTransactions.length > 0 ? (
             <div className="space-y-3">
               {recentTransactions.map((transaction) => (
                 <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-3 min-w-0">
                     <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                       style={{ backgroundColor: transaction.category?.color + '20' }}
                     >
                       <div
@@ -570,14 +570,14 @@ const Dashboard: React.FC = () => {
                         style={{ backgroundColor: transaction.category?.color }}
                       />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-32">
                         {transaction.description}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{transaction.category?.name}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-32">{transaction.category?.name}</p>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right flex-shrink-0">
                     <p className={`text-sm font-medium ${
                       transaction.type === 'income' ? 'text-green-600 dark:text-green-400' : 
                       transaction.type === 'expense' ? 'text-red-600 dark:text-red-400' :
@@ -603,20 +603,20 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Enhanced Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Expenses by Category Pie Chart */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.expensesByCategory')}</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.expensesByCategory')}</h3>
           {expensesByCategory.length > 0 ? (
-            <div className="h-80">
+            <div className="h-64 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={expensesByCategory}
                     cx="50%"
                     cy="50%"
-                    outerRadius={100}
+                    outerRadius={80}
                     dataKey="value"
                     label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
                   >
@@ -629,17 +629,17 @@ const Dashboard: React.FC = () => {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
+            <div className="h-64 sm:h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
               No expense data available
             </div>
           )}
         </div>
 
         {/* Monthly Trend Chart */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.monthlyTrend')}</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.monthlyTrend')}</h3>
           {monthlyTrendData.length > 0 ? (
-            <div className="h-80">
+            <div className="h-64 sm:h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={monthlyTrendData}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
@@ -674,7 +674,7 @@ const Dashboard: React.FC = () => {
               </ResponsiveContainer>
             </div>
           ) : (
-            <div className="h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
+            <div className="h-64 sm:h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
               No trend data available
             </div>
           )}
@@ -682,10 +682,10 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Income vs Expenses Comparison */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.incomeVsExpenses')}</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.incomeVsExpenses')}</h3>
         {monthlyTrendData.length > 0 ? (
-          <div className="h-80">
+          <div className="h-64 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={monthlyTrendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
@@ -706,7 +706,7 @@ const Dashboard: React.FC = () => {
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
+          <div className="h-64 sm:h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
             No comparison data available
           </div>
         )}

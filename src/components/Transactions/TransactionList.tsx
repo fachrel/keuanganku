@@ -131,14 +131,14 @@ const TransactionList: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('transactions')}</h1>
           <p className="text-gray-600 dark:text-gray-400">{t('manage_transactions_description')}</p>
         </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
             className="flex items-center justify-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
+            <span className="hidden sm:inline">Refresh</span>
           </button>
           <button
             onClick={() => openModal('ocrTransaction')}
@@ -258,14 +258,14 @@ const TransactionList: React.FC = () => {
                     </span>
                     <div className="flex items-center space-x-1">
                       <button
-                        className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        className="p-1.5 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                         title={t('edit')}
                       >
                         <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteTransaction(transaction.id)}
-                        className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                        className="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                         title={t('delete')}
                       >
                         <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
