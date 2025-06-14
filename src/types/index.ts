@@ -75,7 +75,15 @@ export interface MonthlyBudget {
   planned_amount: number;
   created_at: string;
   updated_at: string;
+  categories: Category;
+}
+
+export interface MonthlyBudgetWithDetails extends MonthlyBudget {
   category: Category;
+  actual_spent: number;
+  remaining: number;
+  progress_percentage: number;
+  status: 'good' | 'warning' | 'danger';
 }
 
 export interface WishlistItem {

@@ -3,6 +3,7 @@ import { X, Wallet, CreditCard, Building, PiggyBank, Banknote } from 'lucide-rea
 import { Account } from '../../types';
 import { useAccounts } from '../../hooks/useAccounts';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useToast } from '../../contexts/ToastContext';
 import { formatRupiah } from '../../utils/currency';
 
 interface EditAccountModalProps {
@@ -18,12 +19,14 @@ const EditAccountModal: React.FC<EditAccountModalProps> = ({
 }) => {
   const { updateAccount } = useAccounts();
   const { t } = useTheme();
+  const { error: showError, success: showSuccess } = useToast();
   const [formData, setFormData] = useState({
     name: account.name,
     type: account.type,
     color: account.color,
     icon: account.icon,
   });
+  const [loading, setLoading] = useState(false);
 
   const accountTypes = [
     { value: 'cash', label: t('accounts.types.cash'), icon: Banknote },
@@ -49,20 +52,30 @@ const EditAccountModal: React.FC<EditAccountModalProps> = ({
     e.preventDefault();
     
     if (!formData.name.trim()) {
+      showError('Nama akun diperlukan', 'Masukkan nama akun yang valid');
       return;
     }
 
+    setLoading(true);
     try {
-      await updateAccount(account.id, {
+      const result = await updateAccount(account.id, {
         name: formData.name.trim(),
         type: formData.type,
         color: formData.color,
         icon: formData.icon,
       });
 
-      onClose();
+      if (result) {
+        showSuccess('Akun berhasil diupdate', `Perubahan pada ${result.name} telah disimpan`);
+        onClose();
+      } else {
+        showError('Gagal mengupdate akun', 'Silakan coba lagi');
+      }
     } catch (error) {
       console.error('Error updating account:', error);
+      showError('Gagal mengupdate akun', 'Silakan coba lagi');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -216,15 +229,17 @@ const EditAccountModal: React.FC<EditAccountModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+              disabled={loading}
+              className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
             >
               {t('common.cancel')}
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all duration-200"
+              disabled={loading}
+              className="flex-1 px-4 py-2 text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {t('common.save')}
+              {loading ? t('common.saving') : t('common.save')}
             </button>
           </div>
         </form>

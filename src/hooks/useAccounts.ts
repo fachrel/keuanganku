@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Account } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import { supabase } from '../lib/supabase';
+import { logError } from '../utils/errorHandler';
 
 export const useAccounts = () => {
   const { user } = useAuth();
+  const { error: showError, success: showSuccess } = useToast();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -26,20 +29,22 @@ export const useAccounts = () => {
         .order('name');
 
       if (error) {
-        console.error('Error loading accounts:', error);
+        logError(error, 'Loading accounts');
+        showError('Gagal memuat akun', 'Silakan refresh halaman');
         return;
       }
 
       setAccounts(data || []);
     } catch (error) {
-      console.error('Error loading accounts:', error);
+      logError(error, 'Loading accounts');
+      showError('Gagal memuat akun', 'Silakan refresh halaman');
     } finally {
       setLoading(false);
     }
   };
 
   const addAccount = async (account: Omit<Account, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
-    if (!user) return;
+    if (!user) return null;
 
     try {
       const { data, error } = await supabase
@@ -54,14 +59,22 @@ export const useAccounts = () => {
         .single();
 
       if (error) {
-        console.error('Error adding account:', error);
-        return;
+        logError(error, 'Adding account');
+        throw error;
       }
 
+      // Immediate optimistic update
       setAccounts(prev => [...prev, data]);
+      
+      // Reload to ensure consistency
+      setTimeout(() => {
+        loadAccounts();
+      }, 500);
+
       return data;
     } catch (error) {
-      console.error('Error adding account:', error);
+      logError(error, 'Adding account');
+      throw error;
     }
   };
 
@@ -75,14 +88,22 @@ export const useAccounts = () => {
         .single();
 
       if (error) {
-        console.error('Error updating account:', error);
-        return;
+        logError(error, 'Updating account');
+        throw error;
       }
 
+      // Immediate optimistic update
       setAccounts(prev => prev.map(a => a.id === id ? data : a));
+      
+      // Reload to ensure consistency
+      setTimeout(() => {
+        loadAccounts();
+      }, 500);
+
       return data;
     } catch (error) {
-      console.error('Error updating account:', error);
+      logError(error, 'Updating account');
+      throw error;
     }
   };
 
@@ -96,12 +117,13 @@ export const useAccounts = () => {
         .limit(1);
 
       if (checkError) {
-        console.error('Error checking account usage:', checkError);
+        logError(checkError, 'Checking account usage');
+        showError('Gagal memeriksa penggunaan akun', 'Silakan coba lagi');
         return false;
       }
 
       if (transactionsUsingAccount && transactionsUsingAccount.length > 0) {
-        alert('Cannot delete account that is still used in transactions. Please remove related transactions first.');
+        showError('Tidak dapat menghapus akun', 'Akun masih digunakan dalam transaksi');
         return false;
       }
 
@@ -111,14 +133,23 @@ export const useAccounts = () => {
         .eq('id', id);
 
       if (error) {
-        console.error('Error deleting account:', error);
+        logError(error, 'Deleting account');
+        showError('Gagal menghapus akun', 'Silakan coba lagi');
         return false;
       }
 
+      // Immediate optimistic update
       setAccounts(prev => prev.filter(a => a.id !== id));
+      
+      // Reload to ensure consistency
+      setTimeout(() => {
+        loadAccounts();
+      }, 500);
+
       return true;
     } catch (error) {
-      console.error('Error deleting account:', error);
+      logError(error, 'Deleting account');
+      showError('Gagal menghapus akun', 'Silakan coba lagi');
       return false;
     }
   };
