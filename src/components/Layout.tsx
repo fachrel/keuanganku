@@ -13,7 +13,8 @@ import {
   PiggyBank,
   Moon,
   Sun,
-  Globe
+  Globe,
+  Wallet
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -33,6 +34,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage, onPageChange }) 
   const navigation = [
     { name: t('nav.dashboard'), icon: Home, id: 'dashboard' },
     { name: t('nav.transactions'), icon: CreditCard, id: 'transactions' },
+    { name: 'Accounts', icon: Wallet, id: 'accounts' },
     { name: t('nav.categories'), icon: PieChart, id: 'categories' },
     { name: t('nav.budgets'), icon: Target, id: 'budgets' },
     { name: t('nav.savings'), icon: PiggyBank, id: 'savings' },

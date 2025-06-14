@@ -11,6 +11,7 @@ import BudgetList from './components/Budget/BudgetList';
 import SavingsGoals from './components/SavingsGoals/SavingsGoals';
 import Reports from './components/Reports/Reports';
 import Settings from './components/Settings/Settings';
+import AccountList from './components/Accounts/AccountList';
 
 const AuthScreen: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -52,6 +53,8 @@ const MainApp: React.FC = () => {
         return <SavingsGoals />;
       case 'reports':
         return <Reports />;
+      case 'accounts':
+        return <AccountList />;
       case 'settings':
         return <Settings />;
       default:
