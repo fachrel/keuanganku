@@ -42,14 +42,17 @@ const OCRTransactionModal: React.FC<OCRTransactionModalProps> = ({ isOpen, onClo
     if (isOpen) {
       // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden';
+      document.body.classList.add('modal-open');
     } else {
       // Restore body scroll when modal is closed
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
+      document.body.classList.remove('modal-open');
     }
 
     // Cleanup function to restore scroll when component unmounts
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
+      document.body.classList.remove('modal-open');
     };
   }, [isOpen]);
 
