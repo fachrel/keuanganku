@@ -48,7 +48,7 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
       showError('Jumlah tidak valid', 'Masukkan jumlah transfer yang valid');
       return false;
     }
-    if (sourceAccount && transferAmount >= sourceAccount.balance) {
+    if (sourceAccount && transferAmount > sourceAccount.balance) {
       showError('Saldo tidak mencukupi', `Saldo tersedia: ${formatRupiah(sourceAccount.balance)}`);
       return false;
     }
@@ -74,33 +74,35 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
       // Get or create transfer category
       const transferCategoryId = await getOrCreateTransferCategory();
       
-      // Create transfer records - the database triggers will handle balance updates automatically
-      const { error: transferError } = await supabase
+      // Create expense transaction for source account
+      const { error: sourceError } = await supabase
         .from('transactions')
-        .insert([
-          {
-            // Source account record (marked as transfer type)
-            amount: transferAmount,
-            description: `Transfer ke ${destinationAccount.name}: ${formData.description}`,
-            category_id: transferCategoryId,
-            type: 'transfer', // Use transfer type instead of expense
-            date: formData.date,
-            user_id: user.id,
-            account_id: formData.sourceAccountId,
-          },
-          {
-            // Destination account record (marked as transfer type)
-            amount: transferAmount,
-            description: `Transfer dari ${sourceAccount.name}: ${formData.description}`,
-            category_id: transferCategoryId,
-            type: 'transfer', // Use transfer type instead of income
-            date: formData.date,
-            user_id: user.id,
-            account_id: formData.destinationAccountId,
-          }
-        ]);
-        
-      if (transferError) throw transferError;
+        .insert({
+          amount: transferAmount,
+          description: `Transfer ke ${destinationAccount.name}: ${formData.description}`,
+          category_id: transferCategoryId,
+          type: 'transfer', // Use transfer type
+          date: formData.date,
+          user_id: user.id,
+          account_id: formData.sourceAccountId,
+        });
+
+      if (sourceError) throw sourceError;
+
+      // Create income transaction for destination account
+      const { error: destError } = await supabase
+        .from('transactions')
+        .insert({
+          amount: transferAmount,
+          description: `Transfer dari ${sourceAccount.name}: ${formData.description}`,
+          category_id: transferCategoryId,
+          type: 'transfer', // Use transfer type
+          date: formData.date,
+          user_id: user.id,
+          account_id: formData.destinationAccountId,
+        });
+
+      if (destError) throw destError;
 
       // Reload accounts to get updated balances
       await loadAccounts();
@@ -429,10 +431,10 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
           >
             Transfer Dana
           </button>
-          </div>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
+};
 
 export default TransferModal;
