@@ -6,6 +6,7 @@ import { useTransactions } from '../../hooks/useTransactions';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import { formatRupiah } from '../../utils/currency';
+import { supabase } from '../../lib/supabase';
 
 interface TransferModalProps {
   isOpen: boolean;
@@ -85,11 +86,13 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
 
     setLoading(true);
     try {
+      const transferCategoryId = await getOrCreateTransferCategory();
+
       // Create expense transaction for source account
       await addTransaction({
         amount: transferAmount,
         description: `Transfer ke ${destinationAccount.name}: ${formData.description}`,
-        category_id: await getOrCreateTransferCategory(),
+        category_id: transferCategoryId,
         type: 'expense',
         date: formData.date,
         user_id: user.id,
@@ -100,7 +103,7 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
       await addTransaction({
         amount: transferAmount,
         description: `Transfer dari ${sourceAccount.name}: ${formData.description}`,
-        category_id: await getOrCreateTransferCategory(),
+        category_id: transferCategoryId,
         type: 'income',
         date: formData.date,
         user_id: user.id,
@@ -133,11 +136,53 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
     }
   };
 
-  const getOrCreateTransferCategory = async () => {
-    // This would typically be handled by a hook or service
-    // For now, we'll assume there's a "Transfer" category
-    // In a real implementation, you'd want to create this category if it doesn't exist
-    return 'transfer-category-id'; // Placeholder
+  const getOrCreateTransferCategory = async (): Promise<string> => {
+    if (!user) throw new Error('User not authenticated');
+
+    try {
+      // First, try to find an existing "Transfer" category for this user
+      const { data: existingCategory, error: searchError } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('user_id', user.id)
+        .ilike('name', 'transfer')
+        .limit(1)
+        .single();
+
+      if (searchError && searchError.code !== 'PGRST116') {
+        // PGRST116 is "not found" error, which is expected if category doesn't exist
+        throw searchError;
+      }
+
+      if (existingCategory) {
+        return existingCategory.id;
+      }
+
+      // If no existing category found, create a new one
+      const { data: newCategory, error: createError } = await supabase
+        .from('categories')
+        .insert({
+          name: 'Transfer',
+          color: '#6B7280',
+          type: 'expense',
+          user_id: user.id,
+        })
+        .select('id')
+        .single();
+
+      if (createError) {
+        throw createError;
+      }
+
+      if (!newCategory) {
+        throw new Error('Failed to create transfer category');
+      }
+
+      return newCategory.id;
+    } catch (error) {
+      console.error('Error getting or creating transfer category:', error);
+      throw new Error('Failed to get transfer category');
+    }
   };
 
   const handleBackdropClick = (e: React.MouseEvent) => {
