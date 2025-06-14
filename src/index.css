@@ -49,6 +49,9 @@
   @apply flex-1 p-4 sm:p-6;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  /* Modern viewport units for better cross-browser consistency */
+  max-height: calc(100dvh - 140px - env(safe-area-inset-top, 16px) - env(safe-area-inset-bottom, 16px));
+  /* Fallback for older browsers (though less accurate on mobile) */
   max-height: calc(100vh - 140px - env(safe-area-inset-top, 16px) - env(safe-area-inset-bottom, 16px));
 }
 
