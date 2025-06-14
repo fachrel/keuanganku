@@ -19,14 +19,6 @@ const ContributeModal: React.FC<ContributeModalProps> = ({ goal, onClose, onCont
   const [selectedAccountId, setSelectedAccountId] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Handle body scroll when modal opens/closes
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, []);
-
   const remainingAmount = goal.target_amount - goal.current_amount;
   const progress = (goal.current_amount / goal.target_amount) * 100;
   const selectedAccount = accounts.find(a => a.id === selectedAccountId);
@@ -87,11 +79,11 @@ const ContributeModal: React.FC<ContributeModalProps> = ({ goal, onClose, onCont
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="modal-container"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full max-h-[95vh] flex flex-col">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+      <div className="modal-content max-w-md w-full">
+        <div className="modal-header">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Kontribusi Tabungan</h2>
           <button
             onClick={onClose}
@@ -101,147 +93,145 @@ const ContributeModal: React.FC<ContributeModalProps> = ({ goal, onClose, onCont
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-6">
-            {/* Goal Info */}
-            <div className="flex items-center space-x-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg mb-6">
-              <div
-                className="w-12 h-12 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: goal.color + '20' }}
-              >
-                <PiggyBank 
-                  className="w-6 h-6"
-                  style={{ color: goal.color }}
-                />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium text-gray-900 dark:text-white">{goal.name}</h3>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  <p>{formatRupiah(goal.current_amount)} / {formatRupiah(goal.target_amount)}</p>
-                  <p>Sisa: {formatRupiah(remainingAmount)} ({(100 - progress).toFixed(1)}%)</p>
-                </div>
+        <div className="modal-body scrollbar-hide">
+          {/* Goal Info */}
+          <div className="flex items-center space-x-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg mb-6">
+            <div
+              className="w-12 h-12 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: goal.color + '20' }}
+            >
+              <PiggyBank 
+                className="w-6 h-6"
+                style={{ color: goal.color }}
+              />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-medium text-gray-900 dark:text-white">{goal.name}</h3>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                <p>{formatRupiah(goal.current_amount)} / {formatRupiah(goal.target_amount)}</p>
+                <p>Sisa: {formatRupiah(remainingAmount)} ({(100 - progress).toFixed(1)}%)</p>
               </div>
             </div>
+          </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Source Account Selection */}
-              {accounts.length > 0 && (
-                <div>
-                  <label htmlFor="account" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Sumber Dana (Opsional)
-                  </label>
-                  <div className="relative">
-                    <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
-                    <select
-                      id="account"
-                      value={selectedAccountId}
-                      onChange={(e) => setSelectedAccountId(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Source Account Selection */}
+            {accounts.length > 0 && (
+              <div>
+                <label htmlFor="account" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Sumber Dana (Opsional)
+                </label>
+                <div className="relative">
+                  <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
+                  <select
+                    id="account"
+                    value={selectedAccountId}
+                    onChange={(e) => setSelectedAccountId(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="">Tidak menggunakan akun</option>
+                    {accounts.map((account) => (
+                      <option key={account.id} value={account.id}>
+                        {account.name} ({formatRupiah(account.balance)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {selectedAccount && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Saldo tersedia: {formatRupiah(selectedAccount.balance)}
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div>
+              <label htmlFor="amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Jumlah Kontribusi (Rp)
+              </label>
+              <input
+                type="number"
+                id="amount"
+                min="1"
+                required
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                placeholder="0"
+              />
+            </div>
+
+            {/* Quick Amount Buttons */}
+            {quickAmounts.length > 0 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Jumlah Cepat
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {quickAmounts.map((quickAmount, index) => (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setAmount(quickAmount.toString())}
+                      className="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors text-gray-900 dark:text-white"
                     >
-                      <option value="">Tidak menggunakan akun</option>
-                      {accounts.map((account) => (
-                        <option key={account.id} value={account.id}>
-                          {account.name} ({formatRupiah(account.balance)})
-                        </option>
-                      ))}
-                    </select>
+                      {index === quickAmounts.length - 1 ? 'Sisa Target' : formatRupiah(quickAmount)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Deskripsi Transaksi
+              </label>
+              <input
+                type="text"
+                id="description"
+                required
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                placeholder="Deskripsi kontribusi"
+              />
+            </div>
+
+            {/* Balance Warning */}
+            {selectedAccount && contributionAmount > selectedAccount.balance && (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                <div className="flex items-start space-x-3">
+                  <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm text-red-800 dark:text-red-200">
+                    <p className="font-medium mb-1">Saldo Tidak Mencukupi</p>
+                    <p>Saldo akun {selectedAccount.name}: {formatRupiah(selectedAccount.balance)}</p>
+                    <p>Jumlah kontribusi: {formatRupiah(contributionAmount)}</p>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* Preview */}
+            {amount && (
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <div className="flex items-center space-x-2 mb-2">
+                  <DollarSign className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <span className="font-medium text-blue-900 dark:text-blue-200">{t('common.preview')} Kontribusi</span>
+                </div>
+                <div className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+                  <p>Jumlah: {formatRupiah(parseFloat(amount))}</p>
+                  <p>Setelah kontribusi: {formatRupiah(goal.current_amount + parseFloat(amount))}</p>
+                  <p>Progress: {((goal.current_amount + parseFloat(amount)) / goal.target_amount * 100).toFixed(1)}%</p>
                   {selectedAccount && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                      Saldo tersedia: {formatRupiah(selectedAccount.balance)}
-                    </p>
+                    <p>Saldo {selectedAccount.name} setelah kontribusi: {formatRupiah(selectedAccount.balance - parseFloat(amount))}</p>
                   )}
                 </div>
-              )}
-
-              <div>
-                <label htmlFor="amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Jumlah Kontribusi (Rp)
-                </label>
-                <input
-                  type="number"
-                  id="amount"
-                  min="1"
-                  required
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-                  placeholder="0"
-                />
               </div>
-
-              {/* Quick Amount Buttons */}
-              {quickAmounts.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Jumlah Cepat
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {quickAmounts.map((quickAmount, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        onClick={() => setAmount(quickAmount.toString())}
-                        className="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors text-gray-900 dark:text-white"
-                      >
-                        {index === quickAmounts.length - 1 ? 'Sisa Target' : formatRupiah(quickAmount)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Deskripsi Transaksi
-                </label>
-                <input
-                  type="text"
-                  id="description"
-                  required
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-                  placeholder="Deskripsi kontribusi"
-                />
-              </div>
-
-              {/* Balance Warning */}
-              {selectedAccount && contributionAmount > selectedAccount.balance && (
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                  <div className="flex items-start space-x-3">
-                    <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
-                    <div className="text-sm text-red-800 dark:text-red-200">
-                      <p className="font-medium mb-1">Saldo Tidak Mencukupi</p>
-                      <p>Saldo akun {selectedAccount.name}: {formatRupiah(selectedAccount.balance)}</p>
-                      <p>Jumlah kontribusi: {formatRupiah(contributionAmount)}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Preview */}
-              {amount && (
-                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <DollarSign className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    <span className="font-medium text-blue-900 dark:text-blue-200">{t('common.preview')} Kontribusi</span>
-                  </div>
-                  <div className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-                    <p>Jumlah: {formatRupiah(parseFloat(amount))}</p>
-                    <p>Setelah kontribusi: {formatRupiah(goal.current_amount + parseFloat(amount))}</p>
-                    <p>Progress: {((goal.current_amount + parseFloat(amount)) / goal.target_amount * 100).toFixed(1)}%</p>
-                    {selectedAccount && (
-                      <p>Saldo {selectedAccount.name} setelah kontribusi: {formatRupiah(selectedAccount.balance - parseFloat(amount))}</p>
-                    )}
-                  </div>
-                </div>
-              )}
-            </form>
-          </div>
+            )}
+          </form>
         </div>
 
-        <div className="flex space-x-3 p-6 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="modal-footer">
           <button
             type="button"
             onClick={onClose}

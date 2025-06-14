@@ -20,43 +20,37 @@ import AccountList from './components/Accounts/AccountList';
 const GlobalStyles = () => {
   useEffect(() => {
     // Add a meta tag for mobile viewport
-    const metaTag = document.createElement('meta');
-    metaTag.name = 'viewport';
-    metaTag.content = 'width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no';
-    document.head.appendChild(metaTag);
+    const metaViewport = document.querySelector('meta[name="viewport"]');
+    if (metaViewport) {
+      metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no');
+    }
     
-    // Add a style tag to handle modal backdrops
-    const styleTag = document.createElement('style');
-    styleTag.innerHTML = `
-      html {
-        height: -webkit-fill-available;
-      }
-      
-      body {
-        min-height: 100vh;
-        min-height: -webkit-fill-available;
-        position: relative;
-      }
-      
-      .modal-open {
-        overflow: hidden;
-        position: fixed;
-        width: 100%;
-        height: 100%;
-      }
-
-      /* Fix for iOS Safari bottom bar */
-      @supports (padding-bottom: env(safe-area-inset-bottom)) {
-        .modal-footer {
-          padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
-        }
-      }
-    `;
-    document.head.appendChild(styleTag);
+    // Add a meta tag for theme color
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', '#3B82F6');
+    }
+    
+    // Add a meta tag for iOS web app
+    const metaAppleCapable = document.querySelector('meta[name="apple-mobile-web-app-capable"]');
+    if (!metaAppleCapable) {
+      const meta = document.createElement('meta');
+      meta.name = 'apple-mobile-web-app-capable';
+      meta.content = 'yes';
+      document.head.appendChild(meta);
+    }
+    
+    // Add a meta tag for iOS status bar
+    const metaAppleStatusBar = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+    if (!metaAppleStatusBar) {
+      const meta = document.createElement('meta');
+      meta.name = 'apple-mobile-web-app-status-bar-style';
+      meta.content = 'black-translucent';
+      document.head.appendChild(meta);
+    }
     
     return () => {
-      document.head.removeChild(styleTag);
-      document.head.removeChild(metaTag);
+      // No need to clean up meta tags as they should persist
     };
   }, []);
   

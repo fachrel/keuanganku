@@ -48,38 +48,14 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     if (isModalOpen) {
       // Add class to body to prevent scrolling
       document.body.classList.add('modal-open');
-      
-      // Save current scroll position
-      const scrollY = window.scrollY;
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
-      document.body.style.height = '100%';
-      document.body.style.overflow = 'hidden';
     } else {
       // Restore scrolling
-      const scrollY = document.body.style.top;
       document.body.classList.remove('modal-open');
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.height = '';
-      document.body.style.overflow = '';
-      
-      // Restore scroll position
-      if (scrollY) {
-        window.scrollTo(0, parseInt(scrollY || '0', 10) * -1);
-      }
     }
     
     return () => {
       // Cleanup
       document.body.classList.remove('modal-open');
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.height = '';
-      document.body.style.overflow = '';
     };
   }, [isModalOpen]);
 
