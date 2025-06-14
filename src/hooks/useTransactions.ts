@@ -23,7 +23,11 @@ export const useTransactions = () => {
     try {
       const { data, error } = await supabase
         .from('transactions')
-        .select('*')
+        .select(`
+          *,
+          category:categories(id, name, color, type),
+          account:accounts(id, name, type)
+        `)
         .eq('user_id', user.id)
         .order('date', { ascending: false });
 
@@ -61,7 +65,7 @@ export const useTransactions = () => {
     }
   };
 
-  const addTransaction = async (transaction: Omit<Transaction, 'id' | 'user_id' | 'created_at'>) => {
+  const addTransaction = async (transaction: Omit<Transaction, 'id' | 'user_id' | 'created_at' | 'category' | 'account'>) => {
     if (!user) return;
 
     try {
@@ -73,7 +77,11 @@ export const useTransactions = () => {
             user_id: user.id,
           },
         ])
-        .select()
+        .select(`
+          *,
+          category:categories(id, name, color, type),
+          account:accounts(id, name, type)
+        `)
         .single();
 
       if (error) {

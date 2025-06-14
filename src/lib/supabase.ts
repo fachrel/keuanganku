@@ -21,6 +21,7 @@ export interface Database {
           type: 'income' | 'expense';
           user_id: string;
           created_at: string;
+          default_budget_amount?: number;
         };
         Insert: {
           id?: string;
@@ -29,6 +30,7 @@ export interface Database {
           type: 'income' | 'expense';
           user_id: string;
           created_at?: string;
+          default_budget_amount?: number;
         };
         Update: {
           id?: string;
@@ -37,6 +39,42 @@ export interface Database {
           type?: 'income' | 'expense';
           user_id?: string;
           created_at?: string;
+          default_budget_amount?: number;
+        };
+      };
+      accounts: {
+        Row: {
+          id: string;
+          name: string;
+          type: string;
+          balance: number;
+          color: string;
+          icon: string;
+          user_id: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          type?: string;
+          balance?: number;
+          color?: string;
+          icon?: string;
+          user_id: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          type?: string;
+          balance?: number;
+          color?: string;
+          icon?: string;
+          user_id?: string;
+          created_at?: string;
+          updated_at?: string;
         };
       };
       transactions: {
@@ -49,6 +87,7 @@ export interface Database {
           date: string;
           user_id: string;
           created_at: string;
+          account_id?: string;
         };
         Insert: {
           id?: string;
@@ -59,6 +98,7 @@ export interface Database {
           date?: string;
           user_id: string;
           created_at?: string;
+          account_id?: string;
         };
         Update: {
           id?: string;
@@ -69,6 +109,7 @@ export interface Database {
           date?: string;
           user_id?: string;
           created_at?: string;
+          account_id?: string;
         };
       };
       budgets: {
@@ -79,6 +120,8 @@ export interface Database {
           period: 'monthly' | 'weekly';
           user_id: string;
           created_at: string;
+          last_reset?: string;
+          spent_amount?: number;
         };
         Insert: {
           id?: string;
@@ -87,6 +130,8 @@ export interface Database {
           period?: 'monthly' | 'weekly';
           user_id: string;
           created_at?: string;
+          last_reset?: string;
+          spent_amount?: number;
         };
         Update: {
           id?: string;
@@ -95,6 +140,8 @@ export interface Database {
           period?: 'monthly' | 'weekly';
           user_id?: string;
           created_at?: string;
+          last_reset?: string;
+          spent_amount?: number;
         };
       };
     };

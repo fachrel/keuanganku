@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTransactions } from '../../hooks/useTransactions';
 import { useTheme } from '../../contexts/ThemeContext';
+import { Transaction } from '../../types';
 import { formatRupiah } from '../../utils/currency';
 import { 
   Plus, 
@@ -15,23 +16,6 @@ import {
 } from 'lucide-react';
 import AddTransactionModal from './AddTransactionModal';
 
-interface Transaction {
-  id: string;
-  amount: number;
-  description: string;
-  type: 'income' | 'expense';
-  date: string;
-  category: {
-    id: string;
-    name: string;
-    color: string;
-  };
-  account?: {
-    id: string;
-    name: string;
-  };
-}
-
 const TransactionList: React.FC = () => {
   const { transactions, loading, deleteTransaction } = useTransactions();
   const { t } = useTheme();
@@ -43,7 +27,7 @@ const TransactionList: React.FC = () => {
   const filteredTransactions = transactions
     ?.filter((transaction: Transaction) => {
       const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           transaction.category.name.toLowerCase().includes(searchTerm.toLowerCase());
+                           transaction.category?.name?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesType = filterType === 'all' || transaction.type === filterType;
       return matchesSearch && matchesType;
     })
@@ -159,11 +143,15 @@ const TransactionList: React.FC = () => {
                         {transaction.description}
                       </h3>
                       <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-                        <span
-                          className="inline-block w-3 h-3 rounded-full"
-                          style={{ backgroundColor: transaction.category.color }}
-                        />
-                        <span>{transaction.category.name}</span>
+                        {transaction.category && (
+                          <>
+                            <span
+                              className="inline-block w-3 h-3 rounded-full"
+                              style={{ backgroundColor: transaction.category.color }}
+                            />
+                            <span>{transaction.category.name}</span>
+                          </>
+                        )}
                         {transaction.account && (
                           <>
                             <span>•</span>
