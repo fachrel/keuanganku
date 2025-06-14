@@ -34,6 +34,7 @@ const translations = {
     'nav.settings': 'Pengaturan',
     'nav.logout': 'Keluar',
     'nav.loggedInAs': 'Masuk sebagai',
+    'nav.accounts': 'Akun',
     
     // Dashboard
     'dashboard.title': 'Dashboard',
@@ -107,6 +108,30 @@ const translations = {
     'categories.color': 'Warna',
     'categories.preview': 'Preview',
     'categories.categoryNamePlaceholder': 'Nama Kategori',
+    
+    // Accounts
+    'accounts.title': 'Akun',
+    'accounts.subtitle': 'Kelola akun keuangan dan lacak saldo Anda',
+    'accounts.addAccount': 'Tambah Akun',
+    'accounts.editAccount': 'Edit Akun',
+    'accounts.totalBalance': 'Total Saldo',
+    'accounts.noAccounts': 'Belum ada akun',
+    'accounts.noAccountsDesc': 'Mulai dengan menambahkan akun pertama Anda untuk melacak uang di berbagai sumber seperti kas, rekening bank, dan kartu kredit.',
+    'accounts.addFirstAccount': 'Tambah Akun Pertama',
+    'accounts.deleteConfirm': 'Apakah Anda yakin ingin menghapus akun',
+    'accounts.cannotDelete': 'Tidak dapat menghapus akun yang masih digunakan dalam transaksi. Hapus transaksi terkait terlebih dahulu.',
+    'accounts.accountName': 'Nama Akun',
+    'accounts.accountType': 'Jenis Akun',
+    'accounts.initialBalance': 'Saldo Awal',
+    'accounts.currentBalance': 'Saldo Saat Ini',
+    'accounts.enterAccountName': 'Masukkan nama akun',
+    'accounts.selectAccountType': 'Pilih jenis akun',
+    'accounts.acrossAccounts': 'di {count} akun',
+    'accounts.created': 'Dibuat',
+    'accounts.types.cash': 'Kas',
+    'accounts.types.bank': 'Bank',
+    'accounts.types.emoney': 'E-Money',
+    'accounts.types.other': 'Lainnya',
     
     // Budget
     'budget.title': 'Anggaran',
@@ -298,6 +323,7 @@ const translations = {
     'nav.settings': 'Settings',
     'nav.logout': 'Logout',
     'nav.loggedInAs': 'Logged in as',
+    'nav.accounts': 'Accounts',
     
     // Dashboard
     'dashboard.title': 'Dashboard',
@@ -371,6 +397,30 @@ const translations = {
     'categories.color': 'Color',
     'categories.preview': 'Preview',
     'categories.categoryNamePlaceholder': 'Category Name',
+    
+    // Accounts
+    'accounts.title': 'Accounts',
+    'accounts.subtitle': 'Manage your financial accounts and track balances',
+    'accounts.addAccount': 'Add Account',
+    'accounts.editAccount': 'Edit Account',
+    'accounts.totalBalance': 'Total Balance',
+    'accounts.noAccounts': 'No accounts yet',
+    'accounts.noAccountsDesc': 'Start by adding your first account to track your money across different sources like cash, bank accounts, and e-money.',
+    'accounts.addFirstAccount': 'Add Your First Account',
+    'accounts.deleteConfirm': 'Are you sure you want to delete account',
+    'accounts.cannotDelete': 'Cannot delete account that is still used in transactions. Please remove related transactions first.',
+    'accounts.accountName': 'Account Name',
+    'accounts.accountType': 'Account Type',
+    'accounts.initialBalance': 'Initial Balance',
+    'accounts.currentBalance': 'Current Balance',
+    'accounts.enterAccountName': 'Enter account name',
+    'accounts.selectAccountType': 'Select account type',
+    'accounts.acrossAccounts': 'across {count} account{plural}',
+    'accounts.created': 'Created',
+    'accounts.types.cash': 'Cash',
+    'accounts.types.bank': 'Bank',
+    'accounts.types.emoney': 'E-Money',
+    'accounts.types.other': 'Other',
     
     // Budget
     'budget.title': 'Budget',

@@ -1,26 +1,28 @@
 import React, { useState } from 'react';
 import { X, Wallet, CreditCard, Building, PiggyBank, Banknote } from 'lucide-react';
+import { Account } from '../../types';
 import { useAccounts } from '../../hooks/useAccounts';
 import { useTheme } from '../../contexts/ThemeContext';
 import { formatRupiah } from '../../utils/currency';
 
-interface AddAccountModalProps {
+interface EditAccountModalProps {
   isOpen: boolean;
+  account: Account;
   onClose: () => void;
 }
 
-const AddAccountModal: React.FC<AddAccountModalProps> = ({
+const EditAccountModal: React.FC<EditAccountModalProps> = ({
   isOpen,
+  account,
   onClose,
 }) => {
-  const { addAccount } = useAccounts();
+  const { updateAccount } = useAccounts();
   const { t } = useTheme();
   const [formData, setFormData] = useState({
-    name: '',
-    type: 'cash',
-    balance: '',
-    color: '#3B82F6',
-    icon: 'Banknote',
+    name: account.name,
+    type: account.type,
+    color: account.color,
+    icon: account.icon,
   });
 
   const accountTypes = [
@@ -51,26 +53,16 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
     }
 
     try {
-      await addAccount({
+      await updateAccount(account.id, {
         name: formData.name.trim(),
         type: formData.type,
-        balance: parseFloat(formData.balance) || 0,
         color: formData.color,
         icon: formData.icon,
       });
 
-      // Reset form
-      setFormData({
-        name: '',
-        type: 'cash',
-        balance: '',
-        color: '#3B82F6',
-        icon: 'Banknote',
-      });
-
       onClose();
     } catch (error) {
-      console.error('Error adding account:', error);
+      console.error('Error updating account:', error);
     }
   };
 
@@ -80,7 +72,7 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('accounts.addAccount')}</h2>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('accounts.editAccount')}</h2>
           <button
             onClick={onClose}
             className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -134,19 +126,17 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
           </div>
 
           <div>
-            <label htmlFor="balance" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {t('accounts.initialBalance')}
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {t('accounts.currentBalance')}
             </label>
-            <input
-              type="number"
-              id="balance"
-              step="0.01"
-              min="0"
-              value={formData.balance}
-              onChange={(e) => setFormData({ ...formData, balance: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-              placeholder="0.00"
-            />
+            <div className="px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
+              <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                {formatRupiah(account.balance)}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Balance is updated automatically through transactions
+              </p>
+            </div>
           </div>
 
           <div>
@@ -217,7 +207,7 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
             <div>
               <p className="font-medium text-gray-900 dark:text-white">{formData.name || t('accounts.accountName')}</p>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                {accountTypes.find(t => t.value === formData.type)?.label} • {formatRupiah(parseFloat(formData.balance) || 0)}
+                {accountTypes.find(t => t.value === formData.type)?.label} • {formatRupiah(account.balance)}
               </p>
             </div>
           </div>
@@ -234,7 +224,7 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
               type="submit"
               className="flex-1 px-4 py-2 text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all duration-200"
             >
-              {t('accounts.addAccount')}
+              {t('common.save')}
             </button>
           </div>
         </form>
@@ -243,4 +233,4 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
   );
 };
 
-export default AddAccountModal;
+export default EditAccountModal;

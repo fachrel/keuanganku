@@ -4,11 +4,14 @@ import { useAccounts } from '../../hooks/useAccounts';
 import { useTheme } from '../../contexts/ThemeContext';
 import { formatRupiah } from '../../utils/currency';
 import AddAccountModal from './AddAccountModal';
+import EditAccountModal from './EditAccountModal';
 
 const AccountList: React.FC = () => {
-  const { accounts, addAccount, deleteAccount, getTotalBalance } = useAccounts();
+  const { accounts, deleteAccount, getTotalBalance } = useAccounts();
   const { t } = useTheme();
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
 
   const getIconComponent = (iconName: string) => {
     const icons = {
@@ -23,35 +26,40 @@ const AccountList: React.FC = () => {
 
   const getAccountTypeLabel = (type: string) => {
     const types = {
-      cash: 'Cash',
-      checking: 'Checking Account',
-      savings: 'Savings Account',
-      credit: 'Credit Card',
-      investment: 'Investment',
-      other: 'Other',
+      cash: t('accounts.types.cash'),
+      bank: t('accounts.types.bank'),
+      emoney: t('accounts.types.emoney'),
+      other: t('accounts.types.other'),
     };
-    return types[type as keyof typeof types] || 'Other';
+    return types[type as keyof typeof types] || t('accounts.types.other');
   };
 
   const handleDeleteAccount = (id: string, name: string) => {
-    if (window.confirm(`Are you sure you want to delete account "${name}"? This action cannot be undone.`)) {
+    if (window.confirm(`${t('accounts.deleteConfirm')} "${name}"? ${t('accounts.cannotDelete')}`)) {
       deleteAccount(id);
     }
   };
+
+  const handleEditAccount = (accountId: string) => {
+    setSelectedAccount(accountId);
+    setShowEditModal(true);
+  };
+
+  const selectedAccountData = accounts.find(a => a.id === selectedAccount);
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Accounts</h1>
-          <p className="text-gray-600 dark:text-gray-400">Manage your financial accounts and track balances</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('accounts.title')}</h1>
+          <p className="text-gray-600 dark:text-gray-400">{t('accounts.subtitle')}</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
           className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
         >
           <Plus className="w-4 h-4" />
-          <span>Add Account</span>
+          <span>{t('accounts.addAccount')}</span>
         </button>
       </div>
 
@@ -60,9 +68,14 @@ const AccountList: React.FC = () => {
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-6 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold mb-2">Total Balance</h3>
+              <h3 className="text-lg font-semibold mb-2">{t('accounts.totalBalance')}</h3>
               <p className="text-3xl font-bold">{formatRupiah(getTotalBalance())}</p>
-              <p className="text-blue-100 text-sm mt-1">Across {accounts.length} account{accounts.length !== 1 ? 's' : ''}</p>
+              <p className="text-blue-100 text-sm mt-1">
+                {t('accounts.acrossAccounts', { 
+                  count: accounts.length.toString(),
+                  plural: accounts.length !== 1 ? 's' : ''
+                })}
+              </p>
             </div>
             <div className="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
               <Wallet className="w-8 h-8" />
@@ -99,15 +112,16 @@ const AccountList: React.FC = () => {
                   </div>
                   <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
+                      onClick={() => handleEditAccount(account.id)}
                       className="p-2 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                      title="Edit account"
+                      title={t('accounts.editAccount')}
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteAccount(account.id, account.name)}
                       className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                      title="Delete account"
+                      title={t('common.delete')}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -116,7 +130,7 @@ const AccountList: React.FC = () => {
 
                 <div className="space-y-3">
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Current Balance</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{t('accounts.currentBalance')}</p>
                     <p className={`text-2xl font-bold ${
                       account.balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                     }`}>
@@ -126,7 +140,7 @@ const AccountList: React.FC = () => {
                   
                   <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Created {new Date(account.created_at).toLocaleDateString()}
+                      {t('accounts.created')} {new Date(account.created_at).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -137,16 +151,16 @@ const AccountList: React.FC = () => {
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
           <Wallet className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-          <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">No accounts yet</h3>
+          <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">{t('accounts.noAccounts')}</h3>
           <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-            Start by adding your first account to track your money across different sources like cash, bank accounts, and credit cards.
+            {t('accounts.noAccountsDesc')}
           </p>
           <button
             onClick={() => setShowAddModal(true)}
             className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
           >
             <Plus className="w-5 h-5" />
-            <span>Add Your First Account</span>
+            <span>{t('accounts.addFirstAccount')}</span>
           </button>
         </div>
       )}
@@ -156,7 +170,18 @@ const AccountList: React.FC = () => {
         <AddAccountModal
           isOpen={showAddModal}
           onClose={() => setShowAddModal(false)}
-          onAddAccount={addAccount}
+        />
+      )}
+
+      {/* Edit Account Modal */}
+      {showEditModal && selectedAccountData && (
+        <EditAccountModal
+          isOpen={showEditModal}
+          account={selectedAccountData}
+          onClose={() => {
+            setShowEditModal(false);
+            setSelectedAccount(null);
+          }}
         />
       )}
     </div>
