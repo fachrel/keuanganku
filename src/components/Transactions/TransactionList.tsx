@@ -13,14 +13,17 @@ import {
   Edit,
   Trash2,
   CreditCard,
-  RefreshCw
+  RefreshCw,
+  Camera
 } from 'lucide-react';
 import AddTransactionModal from './AddTransactionModal';
+import OCRTransactionModal from './OCRTransactionModal';
 
 const TransactionList: React.FC = () => {
   const { transactions, loading, deleteTransaction, loadTransactions } = useTransactions();
   const { t } = useTheme();
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showOCRModal, setShowOCRModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'amount'>('date');
@@ -77,21 +80,28 @@ const TransactionList: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('transactions')}</h1>
           <p className="text-gray-600 dark:text-gray-400">{t('manage_transactions_description')}</p>
         </div>
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <button
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+            className="flex items-center justify-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
             <span>Refresh</span>
           </button>
           <button
-            onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+            onClick={() => setShowOCRModal(true)}
+            className="flex items-center justify-center space-x-2 px-4 py-2 text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg transition-all duration-200"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            {t('add_transaction')}
+            <Camera className="w-4 h-4" />
+            <span>Scan Receipt</span>
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center justify-center space-x-2 px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            <span>{t('add_transaction')}</span>
           </button>
         </div>
       </div>
@@ -225,22 +235,38 @@ const TransactionList: React.FC = () => {
             <p className="text-gray-500 dark:text-gray-400 mb-4">
               {t('no_transactions_description')}
             </p>
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              {t('add_first_transaction')}
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button
+                onClick={() => setShowOCRModal(true)}
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
+              >
+                <Camera className="w-4 h-4 mr-2" />
+                Scan Receipt
+              </button>
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                {t('add_first_transaction')}
+              </button>
+            </div>
           </div>
         )}
       </div>
 
-      {/* Add Transaction Modal */}
+      {/* Modals */}
       {showAddModal && (
         <AddTransactionModal
           isOpen={showAddModal}
           onClose={() => setShowAddModal(false)}
+        />
+      )}
+
+      {showOCRModal && (
+        <OCRTransactionModal
+          isOpen={showOCRModal}
+          onClose={() => setShowOCRModal(false)}
         />
       )}
     </div>
