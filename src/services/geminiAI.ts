@@ -79,7 +79,7 @@ class GeminiAIService {
   private async fileToBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => {
+      reader.onload = (e) => {
         const result = reader.result as string;
         // Remove data URL prefix (e.g., "data:image/jpeg;base64,")
         const base64 = result.split(',')[1];

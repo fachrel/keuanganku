@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ArrowRight, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Account } from '../../types';
 import { useAccounts } from '../../hooks/useAccounts';
@@ -27,6 +27,19 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
     description: '',
     date: new Date().toISOString().split('T')[0],
   });
+
+  // Handle body scroll when modal opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   const sourceAccount = accounts.find(a => a.id === formData.sourceAccountId);
   const destinationAccount = accounts.find(a => a.id === formData.destinationAccountId);
@@ -127,11 +140,24 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
     return 'transfer-category-id'; // Placeholder
   };
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      if (showConfirmation) {
+        setShowConfirmation(false);
+      } else {
+        onClose();
+      }
+    }
+  };
+
   if (!isOpen) return null;
 
   if (showConfirmation) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div 
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        onClick={handleBackdropClick}
+      >
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full">
           <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Konfirmasi Transfer</h2>
@@ -206,9 +232,12 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={handleBackdropClick}
+    >
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full max-h-[95vh] flex flex-col">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Transfer Dana</h2>
           <button
             onClick={onClose}
@@ -218,150 +247,153 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* Source Account */}
-          <div>
-            <label htmlFor="sourceAccount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Akun Sumber
-            </label>
-            <select
-              id="sourceAccount"
-              required
-              value={formData.sourceAccountId}
-              onChange={(e) => setFormData({ ...formData, sourceAccountId: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            >
-              <option value="">Pilih akun sumber</option>
-              {accounts.map((account) => (
-                <option key={account.id} value={account.id}>
-                  {account.name} ({formatRupiah(account.balance)})
-                </option>
-              ))}
-            </select>
-            {sourceAccount && (
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Saldo tersedia: {formatRupiah(sourceAccount.balance)}
-              </p>
-            )}
-          </div>
-
-          {/* Destination Account */}
-          <div>
-            <label htmlFor="destinationAccount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Akun Tujuan
-            </label>
-            <select
-              id="destinationAccount"
-              required
-              value={formData.destinationAccountId}
-              onChange={(e) => setFormData({ ...formData, destinationAccountId: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            >
-              <option value="">Pilih akun tujuan</option>
-              {accounts
-                .filter(account => account.id !== formData.sourceAccountId)
-                .map((account) => (
+        <div className="flex-1 overflow-y-auto">
+          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            {/* Source Account */}
+            <div>
+              <label htmlFor="sourceAccount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Akun Sumber
+              </label>
+              <select
+                id="sourceAccount"
+                required
+                value={formData.sourceAccountId}
+                onChange={(e) => setFormData({ ...formData, sourceAccountId: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="">Pilih akun sumber</option>
+                {accounts.map((account) => (
                   <option key={account.id} value={account.id}>
                     {account.name} ({formatRupiah(account.balance)})
                   </option>
                 ))}
-            </select>
-          </div>
+              </select>
+              {sourceAccount && (
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Saldo tersedia: {formatRupiah(sourceAccount.balance)}
+                </p>
+              )}
+            </div>
 
-          {/* Amount */}
-          <div>
-            <label htmlFor="amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Jumlah Transfer
-            </label>
-            <input
-              type="number"
-              id="amount"
-              required
-              min="1"
-              value={formData.amount}
-              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-              placeholder="0"
-            />
-            {transferAmount > 0 && (
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {formatRupiah(transferAmount)}
-              </p>
-            )}
-          </div>
+            {/* Destination Account */}
+            <div>
+              <label htmlFor="destinationAccount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Akun Tujuan
+              </label>
+              <select
+                id="destinationAccount"
+                required
+                value={formData.destinationAccountId}
+                onChange={(e) => setFormData({ ...formData, destinationAccountId: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="">Pilih akun tujuan</option>
+                {accounts
+                  .filter(account => account.id !== formData.sourceAccountId)
+                  .map((account) => (
+                    <option key={account.id} value={account.id}>
+                      {account.name} ({formatRupiah(account.balance)})
+                    </option>
+                  ))}
+              </select>
+            </div>
 
-          {/* Description */}
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Deskripsi Transfer
-            </label>
-            <input
-              type="text"
-              id="description"
-              required
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-              placeholder="Contoh: Pembayaran tagihan, Transfer ke tabungan"
-            />
-          </div>
+            {/* Amount */}
+            <div>
+              <label htmlFor="amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Jumlah Transfer
+              </label>
+              <input
+                type="number"
+                id="amount"
+                required
+                min="1"
+                value={formData.amount}
+                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                placeholder="0"
+              />
+              {transferAmount > 0 && (
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  {formatRupiah(transferAmount)}
+                </p>
+              )}
+            </div>
 
-          {/* Date */}
-          <div>
-            <label htmlFor="date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Tanggal Transfer
-            </label>
-            <input
-              type="date"
-              id="date"
-              required
-              value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            />
-          </div>
+            {/* Description */}
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Deskripsi Transfer
+              </label>
+              <input
+                type="text"
+                id="description"
+                required
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                placeholder="Contoh: Pembayaran tagihan, Transfer ke tabungan"
+              />
+            </div>
 
-          {/* Transfer Preview */}
-          {sourceAccount && destinationAccount && transferAmount > 0 && (
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-              <h4 className="font-medium text-gray-900 dark:text-white mb-3">Preview Transfer</h4>
-              <div className="flex items-center justify-between text-sm">
-                <div className="text-center">
-                  <p className="font-medium text-gray-900 dark:text-white">{sourceAccount.name}</p>
-                  <p className="text-red-600 dark:text-red-400">-{formatRupiah(transferAmount)}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Sisa: {formatRupiah(sourceAccount.balance - transferAmount)}
-                  </p>
-                </div>
-                <ArrowRight className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                <div className="text-center">
-                  <p className="font-medium text-gray-900 dark:text-white">{destinationAccount.name}</p>
-                  <p className="text-green-600 dark:text-green-400">+{formatRupiah(transferAmount)}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Total: {formatRupiah(destinationAccount.balance + transferAmount)}
-                  </p>
+            {/* Date */}
+            <div>
+              <label htmlFor="date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Tanggal Transfer
+              </label>
+              <input
+                type="date"
+                id="date"
+                required
+                value={formData.date}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+
+            {/* Transfer Preview */}
+            {sourceAccount && destinationAccount && transferAmount > 0 && (
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 dark:text-white mb-3">Preview Transfer</h4>
+                <div className="flex items-center justify-between text-sm">
+                  <div className="text-center">
+                    <p className="font-medium text-gray-900 dark:text-white">{sourceAccount.name}</p>
+                    <p className="text-red-600 dark:text-red-400">-{formatRupiah(transferAmount)}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Sisa: {formatRupiah(sourceAccount.balance - transferAmount)}
+                    </p>
+                  </div>
+                  <ArrowRight className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  <div className="text-center">
+                    <p className="font-medium text-gray-900 dark:text-white">{destinationAccount.name}</p>
+                    <p className="text-green-600 dark:text-green-400">+{formatRupiah(transferAmount)}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Total: {formatRupiah(destinationAccount.balance + transferAmount)}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </form>
+        </div>
 
-          <div className="flex space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              disabled={accounts.length < 2}
-              className="flex-1 px-4 py-2 text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Transfer Dana
-            </button>
-          </div>
-        </form>
+        <div className="flex space-x-3 p-6 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+          >
+            Batal
+          </button>
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            disabled={accounts.length < 2}
+            className="flex-1 px-4 py-2 text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Transfer Dana
+          </button>
+        </div>
       </div>
     </div>
   );
