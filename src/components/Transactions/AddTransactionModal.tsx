@@ -49,7 +49,17 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
     if (isOpen) {
       fetchCategories();
       fetchAccounts();
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Restore body scroll when modal is closed
+      document.body.style.overflow = 'unset';
     }
+
+    // Cleanup function to restore scroll when component unmounts
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
   }, [isOpen]);
 
   const fetchCategories = async () => {
@@ -214,10 +224,10 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Tambah Transaksi</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md max-h-[95vh] flex flex-col">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Tambah Transaksi</h2>
           <button
             onClick={onClose}
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -226,223 +236,226 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Transaction Type */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-              Jenis Transaksi
-            </label>
-            <div className="flex space-x-3">
-              <button
-                type="button"
-                onClick={() => handleTypeChange('expense')}
-                className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all ${
-                  formData.type === 'expense'
-                    ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300'
-                }`}
-              >
-                <div className="text-center">
-                  <div className="text-lg font-semibold">Pengeluaran</div>
-                  <div className="text-sm opacity-75">Uang keluar</div>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleTypeChange('income')}
-                className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all ${
-                  formData.type === 'income'
-                    ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
-                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300'
-                }`}
-              >
-                <div className="text-center">
-                  <div className="text-lg font-semibold">Pemasukan</div>
-                  <div className="text-sm opacity-75">Uang masuk</div>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          {/* Amount */}
-          <div>
-            <label htmlFor="amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Jumlah
-            </label>
-            <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
-              <input
-                type="text"
-                id="amount"
-                required
-                value={formData.amount}
-                onChange={(e) => handleAmountChange(e.target.value)}
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
-                  errors.amount ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'
-                }`}
-                placeholder="100000"
-              />
-            </div>
-            {errors.amount && (
-              <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.amount}</p>
-            )}
-          </div>
-
-          {/* Description */}
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Deskripsi
-            </label>
-            <div className="relative">
-              <FileText className="absolute left-3 top-3 text-gray-400 dark:text-gray-500 w-5 h-5" />
-              <input
-                type="text"
-                id="description"
-                required
-                value={formData.description}
-                onChange={(e) => {
-                  setFormData(prev => ({ ...prev, description: e.target.value }));
-                  if (errors.description) {
-                    setErrors(prev => ({ ...prev, description: '' }));
-                  }
-                }}
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
-                  errors.description ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'
-                }`}
-                placeholder="Masukkan deskripsi transaksi"
-              />
-            </div>
-            {errors.description && (
-              <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.description}</p>
-            )}
-          </div>
-
-          {/* Category */}
-          <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Kategori
-            </label>
-            <div className="relative">
-              <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
-              <select
-                id="category"
-                required
-                value={formData.category_id}
-                onChange={(e) => {
-                  setFormData(prev => ({ ...prev, category_id: e.target.value }));
-                  if (errors.category_id) {
-                    setErrors(prev => ({ ...prev, category_id: '' }));
-                  }
-                }}
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
-                  errors.category_id ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'
-                }`}
-              >
-                <option value="">Pilih kategori</option>
-                {filteredCategories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {errors.category_id && (
-              <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.category_id}</p>
-            )}
-          </div>
-
-          {/* Account */}
-          <div>
-            <label htmlFor="account" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Akun (Opsional)
-            </label>
-            <div className="relative">
-              <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
-              <select
-                id="account"
-                value={formData.account_id}
-                onChange={(e) => {
-                  setFormData(prev => ({ ...prev, account_id: e.target.value }));
-                  if (errors.account_id) {
-                    setErrors(prev => ({ ...prev, account_id: '' }));
-                  }
-                }}
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
-                  errors.account_id ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'
-                }`}
-              >
-                <option value="">Tidak ada akun dipilih</option>
-                {accounts.map((account) => (
-                  <option key={account.id} value={account.id}>
-                    {account.name} ({formatRupiah(account.balance)})
-                  </option>
-                ))}
-              </select>
-            </div>
-            {errors.account_id && (
-              <div className="flex items-start space-x-2 mt-1">
-                <AlertTriangle className="w-4 h-4 text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0" />
-                <p className="text-red-500 dark:text-red-400 text-sm">{errors.account_id}</p>
+        <div className="flex-1 overflow-y-auto">
+          <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+            {/* Transaction Type */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                Jenis Transaksi
+              </label>
+              <div className="flex space-x-3">
+                <button
+                  type="button"
+                  onClick={() => handleTypeChange('expense')}
+                  className={`flex-1 py-2 sm:py-3 px-3 sm:px-4 rounded-lg border-2 transition-all ${
+                    formData.type === 'expense'
+                      ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                      : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300'
+                  }`}
+                >
+                  <div className="text-center">
+                    <div className="text-sm sm:text-lg font-semibold">Pengeluaran</div>
+                    <div className="text-xs sm:text-sm opacity-75">Uang keluar</div>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTypeChange('income')}
+                  className={`flex-1 py-2 sm:py-3 px-3 sm:px-4 rounded-lg border-2 transition-all ${
+                    formData.type === 'income'
+                      ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                      : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300'
+                  }`}
+                >
+                  <div className="text-center">
+                    <div className="text-sm sm:text-lg font-semibold">Pemasukan</div>
+                    <div className="text-xs sm:text-sm opacity-75">Uang masuk</div>
+                  </div>
+                </button>
               </div>
-            )}
-            {selectedAccount && formData.type === 'expense' && (
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Saldo tersedia: {formatRupiah(selectedAccount.balance)}
-              </p>
-            )}
-          </div>
-
-          {/* Date */}
-          <div>
-            <label htmlFor="date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Tanggal
-            </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
-              <input
-                type="date"
-                id="date"
-                required
-                value={formData.date}
-                onChange={(e) => {
-                  setFormData(prev => ({ ...prev, date: e.target.value }));
-                  if (errors.date) {
-                    setErrors(prev => ({ ...prev, date: '' }));
-                  }
-                }}
-                className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
-                  errors.date ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'
-                }`}
-              />
             </div>
-            {errors.date && (
-              <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.date}</p>
-            )}
-          </div>
 
-          {/* Submit Button */}
-          <div className="flex space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={loading}
-              className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className={`flex-1 px-4 py-3 rounded-lg text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                formData.type === 'expense'
-                  ? 'bg-red-600 hover:bg-red-700'
-                  : 'bg-green-600 hover:bg-green-700'
-              }`}
-            >
-              {loading ? 'Menambahkan...' : `Tambah ${formData.type === 'expense' ? 'Pengeluaran' : 'Pemasukan'}`}
-            </button>
-          </div>
-        </form>
+            {/* Amount */}
+            <div>
+              <label htmlFor="amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Jumlah
+              </label>
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
+                <input
+                  type="text"
+                  id="amount"
+                  required
+                  value={formData.amount}
+                  onChange={(e) => handleAmountChange(e.target.value)}
+                  className={`w-full pl-10 pr-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
+                    errors.amount ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'
+                  }`}
+                  placeholder="100000"
+                />
+              </div>
+              {errors.amount && (
+                <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.amount}</p>
+              )}
+            </div>
+
+            {/* Description */}
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Deskripsi
+              </label>
+              <div className="relative">
+                <FileText className="absolute left-3 top-3 text-gray-400 dark:text-gray-500 w-5 h-5" />
+                <input
+                  type="text"
+                  id="description"
+                  required
+                  value={formData.description}
+                  onChange={(e) => {
+                    setFormData(prev => ({ ...prev, description: e.target.value }));
+                    if (errors.description) {
+                      setErrors(prev => ({ ...prev, description: '' }));
+                    }
+                  }}
+                  className={`w-full pl-10 pr-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
+                    errors.description ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'
+                  }`}
+                  placeholder="Masukkan deskripsi transaksi"
+                />
+              </div>
+              {errors.description && (
+                <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.description}</p>
+              )}
+            </div>
+
+            {/* Category */}
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Kategori
+              </label>
+              <div className="relative">
+                <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
+                <select
+                  id="category"
+                  required
+                  value={formData.category_id}
+                  onChange={(e) => {
+                    setFormData(prev => ({ ...prev, category_id: e.target.value }));
+                    if (errors.category_id) {
+                      setErrors(prev => ({ ...prev, category_id: '' }));
+                    }
+                  }}
+                  className={`w-full pl-10 pr-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    errors.category_id ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'
+                  }`}
+                >
+                  <option value="">Pilih kategori</option>
+                  {filteredCategories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {errors.category_id && (
+                <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.category_id}</p>
+              )}
+            </div>
+
+            {/* Account */}
+            <div>
+              <label htmlFor="account" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Akun (Opsional)
+              </label>
+              <div className="relative">
+                <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
+                <select
+                  id="account"
+                  value={formData.account_id}
+                  onChange={(e) => {
+                    setFormData(prev => ({ ...prev, account_id: e.target.value }));
+                    if (errors.account_id) {
+                      setErrors(prev => ({ ...prev, account_id: '' }));
+                    }
+                  }}
+                  className={`w-full pl-10 pr-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    errors.account_id ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'
+                  }`}
+                >
+                  <option value="">Tidak ada akun dipilih</option>
+                  {accounts.map((account) => (
+                    <option key={account.id} value={account.id}>
+                      {account.name} ({formatRupiah(account.balance)})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {errors.account_id && (
+                <div className="flex items-start space-x-2 mt-1">
+                  <AlertTriangle className="w-4 h-4 text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-red-500 dark:text-red-400 text-sm">{errors.account_id}</p>
+                </div>
+              )}
+              {selectedAccount && formData.type === 'expense' && (
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Saldo tersedia: {formatRupiah(selectedAccount.balance)}
+                </p>
+              )}
+            </div>
+
+            {/* Date */}
+            <div>
+              <label htmlFor="date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Tanggal
+              </label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
+                <input
+                  type="date"
+                  id="date"
+                  required
+                  value={formData.date}
+                  onChange={(e) => {
+                    setFormData(prev => ({ ...prev, date: e.target.value }));
+                    if (errors.date) {
+                      setErrors(prev => ({ ...prev, date: '' }));
+                    }
+                  }}
+                  className={`w-full pl-10 pr-4 py-2 sm:py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                    errors.date ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-gray-600'
+                  }`}
+                />
+              </div>
+              {errors.date && (
+                <p className="text-red-500 dark:text-red-400 text-sm mt-1">{errors.date}</p>
+              )}
+            </div>
+          </form>
+        </div>
+
+        {/* Submit Button */}
+        <div className="flex space-x-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={loading}
+            className="flex-1 px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+          >
+            Batal
+          </button>
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            disabled={loading}
+            className={`flex-1 px-4 py-2 sm:py-3 rounded-lg text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+              formData.type === 'expense'
+                ? 'bg-red-600 hover:bg-red-700'
+                : 'bg-green-600 hover:bg-green-700'
+            }`}
+          >
+            {loading ? 'Menambahkan...' : `Tambah ${formData.type === 'expense' ? 'Pengeluaran' : 'Pemasukan'}`}
+          </button>
+        </div>
       </div>
     </div>
   );
