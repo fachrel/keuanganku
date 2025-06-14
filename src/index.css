@@ -18,30 +18,41 @@
 
 /* Modal container styles */
 .modal-container {
-  @apply fixed inset-0 z-50 flex items-center justify-center p-4;
-  padding-top: env(safe-area-inset-top, 16px);
-  padding-bottom: env(safe-area-inset-bottom, 16px);
+  @apply fixed inset-0 z-50 flex items-center justify-center p-4; /* 16px padding on all sides */
+  /* Remove explicit padding-top/bottom here, let @apply p-4 handle it */
   background-color: rgba(0, 0, 0, 0.5);
   touch-action: none;
+  /* Use d_vh for the container if you want it to truly fill the dynamic viewport */
+  height: 100dvh; /* Use 100dvh for container height */
+  height: 100vh; /* Fallback for older browsers */
 }
 
 /* Modal content styles */
 .modal-content {
   @apply bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full flex flex-col;
-  max-height: calc(100vh - env(safe-area-inset-top, 16px) - env(safe-area-inset-bottom, 16px) - 32px);
-  height: auto;
+  /* Calculate max-height based on container and its padding */
+  /* 100% of parent (modal-container) height minus its vertical padding (16px top + 16px bottom = 32px) */
+  max-height: calc(100% - 32px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  /* Ensure safe-area-insets are accounted for if they push the modal-container from edges,
+     but primarily, the 32px from p-4 on container is the key.
+     Changed fallback to 0px for safe-area-inset, as the container's p-4 handles the basic margin
+     and the safe area insets are less likely to be a direct 'subtraction' from content if container already adapts.
+     However, if you find content still hidden behind notch, revert env(safe-area-inset-top/bottom, 16px) here.
+  */
+  height: auto; /* Let content determine initial height up to max-height */
+  overflow: hidden; /* Important for flexbox layout and containing scrollable body */
 }
 
 /* Modal header styles */
 .modal-header {
   @apply flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0;
-  padding-top: max(16px, env(safe-area-inset-top, 16px));
+  /* No need for max() here, p-4 handles it, and safe-area-inset should be handled by container or modal-content overall */
 }
 
 /* Modal footer styles */
 .modal-footer {
   @apply flex space-x-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 flex-shrink-0;
-  padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+  /* No need for max() here */
 }
 
 /* Modal body styles */
@@ -49,10 +60,10 @@
   @apply flex-1 p-4 sm:p-6;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  /* Modern viewport units for better cross-browser consistency */
-  max-height: calc(100dvh - 140px - env(safe-area-inset-top, 16px) - env(safe-area-inset-bottom, 16px));
-  /* Fallback for older browsers (though less accurate on mobile) */
-  max-height: calc(100vh - 140px - env(safe-area-inset-top, 16px) - env(safe-area-inset-bottom, 16px));
+  /* Remove max-height from modal-body. flex-1 will make it fill available space
+     within the modal-content, and modal-content's max-height will constrain the overall modal.
+     The overflow-y: auto on modal-body will then make it scrollable if content exceeds its available height. */
+  max-height: none; /* Remove explicit max-height, let flex-1 manage it within the constrained .modal-content */
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
