@@ -10,6 +10,7 @@ import {
   Calendar,
   ArrowUpCircle,
   ArrowDownCircle,
+  ArrowRightCircle,
   Edit,
   Trash2,
   CreditCard,
@@ -23,7 +24,7 @@ const TransactionList: React.FC = () => {
   const { t } = useTheme();
   const { openModal } = useModal();
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'income' | 'expense' | 'transfer'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'amount'>('date');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -59,6 +60,58 @@ const TransactionList: React.FC = () => {
       console.error('Error refreshing transactions:', error);
     } finally {
       setIsRefreshing(false);
+    }
+  };
+
+  const getTransactionIcon = (type: string) => {
+    switch (type) {
+      case 'income':
+        return <ArrowUpCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400" />;
+      case 'expense':
+        return <ArrowDownCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />;
+      case 'transfer':
+        return <ArrowRightCircle className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />;
+      default:
+        return <ArrowDownCircle className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />;
+    }
+  };
+
+  const getTransactionTypeColor = (type: string) => {
+    switch (type) {
+      case 'income':
+        return 'bg-green-100 dark:bg-green-900/20';
+      case 'expense':
+        return 'bg-red-100 dark:bg-red-900/20';
+      case 'transfer':
+        return 'bg-blue-100 dark:bg-blue-900/20';
+      default:
+        return 'bg-gray-100 dark:bg-gray-900/20';
+    }
+  };
+
+  const getAmountColor = (type: string) => {
+    switch (type) {
+      case 'income':
+        return 'text-green-600 dark:text-green-400';
+      case 'expense':
+        return 'text-red-600 dark:text-red-400';
+      case 'transfer':
+        return 'text-blue-600 dark:text-blue-400';
+      default:
+        return 'text-gray-600 dark:text-gray-400';
+    }
+  };
+
+  const getAmountPrefix = (type: string) => {
+    switch (type) {
+      case 'income':
+        return '+';
+      case 'expense':
+        return '-';
+      case 'transfer':
+        return '↔';
+      default:
+        return '';
     }
   };
 
@@ -130,12 +183,13 @@ const TransactionList: React.FC = () => {
               <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
               <select
                 value={filterType}
-                onChange={(e) => setFilterType(e.target.value as 'all' | 'income' | 'expense')}
+                onChange={(e) => setFilterType(e.target.value as 'all' | 'income' | 'expense' | 'transfer')}
                 className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="all">{t('all_types')}</option>
                 <option value="income">{t('income')}</option>
                 <option value="expense">{t('expense')}</option>
+                <option value="transfer">Transfer</option>
               </select>
             </div>
 
@@ -164,16 +218,8 @@ const TransactionList: React.FC = () => {
                 <div className="flex items-start justify-between gap-3">
                   {/* Left side - Icon and details */}
                   <div className="flex items-start space-x-3 flex-1 min-w-0">
-                    <div className={`p-2 rounded-full flex-shrink-0 ${
-                      transaction.type === 'income' 
-                        ? 'bg-green-100 dark:bg-green-900/20' 
-                        : 'bg-red-100 dark:bg-red-900/20'
-                    }`}>
-                      {transaction.type === 'income' ? (
-                        <ArrowUpCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400" />
-                      ) : (
-                        <ArrowDownCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 dark:text-red-400" />
-                      )}
+                    <div className={`p-2 rounded-full flex-shrink-0 ${getTransactionTypeColor(transaction.type)}`}>
+                      {getTransactionIcon(transaction.type)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-sm sm:text-base font-medium text-gray-900 dark:text-white truncate">
@@ -207,12 +253,8 @@ const TransactionList: React.FC = () => {
                   
                   {/* Right side - Amount and actions */}
                   <div className="flex flex-col items-end space-y-2 flex-shrink-0">
-                    <span className={`text-sm sm:text-lg font-semibold ${
-                      transaction.type === 'income' 
-                        ? 'text-green-600 dark:text-green-400' 
-                        : 'text-red-600 dark:text-red-400'
-                    }`}>
-                      {transaction.type === 'income' ? '+' : '-'}{formatRupiah(transaction.amount)}
+                    <span className={`text-sm sm:text-lg font-semibold ${getAmountColor(transaction.type)}`}>
+                      {getAmountPrefix(transaction.type)}{formatRupiah(transaction.amount)}
                     </span>
                     <div className="flex items-center space-x-1">
                       <button

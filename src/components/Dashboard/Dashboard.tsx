@@ -60,13 +60,16 @@ const Dashboard: React.FC = () => {
     const currentYear = new Date().getFullYear();
     const lastMonth = new Date(currentYear, currentMonth - 1);
     
-    const currentMonthTransactions = transactions.filter(t => {
+    // Filter out transfer transactions
+    const nonTransferTransactions = transactions.filter(t => t.type !== 'transfer');
+    
+    const currentMonthTransactions = nonTransferTransactions.filter(t => {
       const transactionDate = new Date(t.date);
       return transactionDate.getMonth() === currentMonth && 
              transactionDate.getFullYear() === currentYear;
     });
 
-    const lastMonthTransactions = transactions.filter(t => {
+    const lastMonthTransactions = nonTransferTransactions.filter(t => {
       const transactionDate = new Date(t.date);
       return transactionDate.getMonth() === lastMonth.getMonth() && 
              transactionDate.getFullYear() === lastMonth.getFullYear();
@@ -124,6 +127,7 @@ const Dashboard: React.FC = () => {
       .filter(t => {
         const transactionDate = new Date(t.date);
         return t.type === 'expense' && 
+               t.type !== 'transfer' &&
                transactionDate.getMonth() === currentMonth && 
                transactionDate.getFullYear() === currentYear;
       })
@@ -160,9 +164,12 @@ const Dashboard: React.FC = () => {
     const months = [];
     const now = new Date();
     
+    // Filter out transfer transactions
+    const nonTransferTransactions = transactions.filter(t => t.type !== 'transfer');
+    
     for (let i = 5; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthTransactions = transactions.filter(t => {
+      const monthTransactions = nonTransferTransactions.filter(t => {
         const transactionDate = new Date(t.date);
         return transactionDate.getMonth() === date.getMonth() && 
                transactionDate.getFullYear() === date.getFullYear();
@@ -198,6 +205,7 @@ const Dashboard: React.FC = () => {
           const transactionDate = new Date(t.date);
           return t.category_id === budget.category_id && 
                  t.type === 'expense' &&
+                 t.type !== 'transfer' &&
                  transactionDate.getMonth() === currentMonth && 
                  transactionDate.getFullYear() === currentYear;
         })
@@ -571,9 +579,13 @@ const Dashboard: React.FC = () => {
                   </div>
                   <div className="text-right">
                     <p className={`text-sm font-medium ${
-                      transaction.type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                      transaction.type === 'income' ? 'text-green-600 dark:text-green-400' : 
+                      transaction.type === 'expense' ? 'text-red-600 dark:text-red-400' :
+                      'text-blue-600 dark:text-blue-400' // For transfer type
                     }`}>
-                      {transaction.type === 'income' ? '+' : '-'}{formatRupiah(transaction.amount)}
+                      {transaction.type === 'income' ? '+' : 
+                       transaction.type === 'expense' ? '-' : 
+                       '↔'}{formatRupiah(transaction.amount)}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {new Date(transaction.date).toLocaleDateString('id-ID', { 

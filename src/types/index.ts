@@ -32,7 +32,7 @@ export interface Transaction {
   amount: number;
   description: string;
   category_id: string;
-  type: 'income' | 'expense';
+  type: 'income' | 'expense' | 'transfer';
   date: string;
   user_id: string;
   created_at: string;

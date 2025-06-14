@@ -21,9 +21,11 @@ const Reports: React.FC = () => {
       const startDate = new Date(dateRange.startDate);
       const endDate = new Date(dateRange.endDate);
       
+      // Exclude transfer transactions
       return transactionDate >= startDate && 
              transactionDate <= endDate && 
-             transaction.type === reportType;
+             transaction.type === reportType &&
+             transaction.type !== 'transfer';
     });
   }, [transactions, dateRange, reportType]);
 
@@ -76,7 +78,12 @@ const Reports: React.FC = () => {
   const monthlyData = useMemo(() => {
     const monthlyTotals = new Map<string, number>();
     
-    filteredTransactions.forEach(transaction => {
+    // Filter out transfer transactions
+    const nonTransferTransactions = transactions.filter(t => t.type !== 'transfer');
+    
+    nonTransferTransactions.forEach(transaction => {
+      if (transaction.type !== reportType) return;
+      
       const date = new Date(transaction.date);
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
       
@@ -93,7 +100,7 @@ const Reports: React.FC = () => {
         }),
       }))
       .sort((a, b) => a.month.localeCompare(b.month));
-  }, [filteredTransactions]);
+  }, [transactions, reportType]);
 
   const exportData = () => {
     const exportData = {

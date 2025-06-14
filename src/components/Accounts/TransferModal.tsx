@@ -95,21 +95,21 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
         .from('transactions')
         .insert([
           {
-            // Source account record (not an expense)
+            // Source account record (marked as transfer type)
             amount: transferAmount,
             description: `Transfer ke ${destinationAccount.name}: ${formData.description}`,
             category_id: transferCategoryId,
-            type: 'expense', // Just for display purposes
+            type: 'transfer', // Use transfer type instead of expense
             date: formData.date,
             user_id: user.id,
             account_id: formData.sourceAccountId,
           },
           {
-            // Destination account record (not an income)
+            // Destination account record (marked as transfer type)
             amount: transferAmount,
             description: `Transfer dari ${sourceAccount.name}: ${formData.description}`,
             category_id: transferCategoryId,
-            type: 'income', // Just for display purposes
+            type: 'transfer', // Use transfer type instead of income
             date: formData.date,
             user_id: user.id,
             account_id: formData.destinationAccountId,
@@ -153,7 +153,7 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
         .from('categories')
         .select('id')
         .eq('user_id', user.id)
-        .ilike('name', 'transfer')
+        .eq('name', 'Transfer')
         .limit(1)
         .maybeSingle();
 
@@ -171,7 +171,7 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
         .insert({
           name: 'Transfer',
           color: '#6B7280',
-          type: 'expense',
+          type: 'expense', // We still use expense type for the category
           user_id: user.id,
         })
         .select('id')
@@ -256,7 +256,7 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
                 <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
                 <div className="text-sm text-yellow-800 dark:text-yellow-200">
                   <p className="font-medium mb-1">Peringatan</p>
-                  <p>Transfer ini akan memindahkan dana dari satu akun ke akun lainnya. Transaksi ini tidak dihitung sebagai pemasukan atau pengeluaran dalam laporan keuangan Anda.</p>
+                  <p>Transfer ini hanya memindahkan dana antar akun dan tidak akan dihitung sebagai pemasukan atau pengeluaran dalam laporan keuangan Anda.</p>
                 </div>
               </div>
             </div>

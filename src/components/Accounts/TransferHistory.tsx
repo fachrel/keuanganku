@@ -36,7 +36,7 @@ const TransferHistory: React.FC<TransferHistoryProps> = ({ accounts }) => {
 
     setLoading(true);
     try {
-      // Get all transfer-related transactions
+      // Get all transfer transactions
       const { data: transactions, error } = await supabase
         .from('transactions')
         .select(`
@@ -44,7 +44,7 @@ const TransferHistory: React.FC<TransferHistoryProps> = ({ accounts }) => {
           account:accounts(id, name)
         `)
         .eq('user_id', user.id)
-        .ilike('description', '%transfer%')
+        .eq('type', 'transfer')
         .order('date', { ascending: false });
 
       if (error) {
@@ -60,7 +60,7 @@ const TransferHistory: React.FC<TransferHistoryProps> = ({ accounts }) => {
         
         if (transferMap.has(key)) {
           const existing = transferMap.get(key)!;
-          if (transaction.type === 'expense') {
+          if (transaction.description.includes('Transfer ke')) {
             existing.sourceAccount = transaction.account?.name || 'Unknown';
           } else {
             existing.destinationAccount = transaction.account?.name || 'Unknown';
@@ -71,8 +71,8 @@ const TransferHistory: React.FC<TransferHistoryProps> = ({ accounts }) => {
             amount: transaction.amount,
             description: transaction.description.replace(/Transfer (ke|dari) .+?: /, ''),
             date: transaction.date,
-            sourceAccount: transaction.type === 'expense' ? (transaction.account?.name || 'Unknown') : '',
-            destinationAccount: transaction.type === 'income' ? (transaction.account?.name || 'Unknown') : '',
+            sourceAccount: transaction.description.includes('Transfer ke') ? (transaction.account?.name || 'Unknown') : '',
+            destinationAccount: transaction.description.includes('Transfer dari') ? (transaction.account?.name || 'Unknown') : '',
             created_at: transaction.created_at,
           });
         }
@@ -165,7 +165,7 @@ const TransferHistory: React.FC<TransferHistoryProps> = ({ accounts }) => {
                     <div className="text-sm">
                       <span className="font-medium text-gray-900 dark:text-white">{transfer.sourceAccount}</span>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-gray-400" />
+                    <ArrowRight className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     <div className="text-sm">
                       <span className="font-medium text-gray-900 dark:text-white">{transfer.destinationAccount}</span>
                     </div>
