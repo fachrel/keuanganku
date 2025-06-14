@@ -48,7 +48,7 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
       showError('Jumlah tidak valid', 'Masukkan jumlah transfer yang valid');
       return false;
     }
-    if (sourceAccount && transferAmount > sourceAccount.balance) {
+    if (sourceAccount && transferAmount >= sourceAccount.balance) {
       showError('Saldo tidak mencukupi', `Saldo tersedia: ${formatRupiah(sourceAccount.balance)}`);
       return false;
     }
