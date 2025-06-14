@@ -585,3 +585,5 @@ const OCRTransactionModal: React.FC<OCRTransactionModalProps> = ({ isOpen, onClo
 };
 
 export default OCRTransactionModal;
+
+export default OCRTransactionModal
