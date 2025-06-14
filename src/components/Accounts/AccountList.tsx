@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Wallet, CreditCard, Building, PiggyBank, Banknote, Edit, Trash2, ArrowRightLeft, History } from 'lucide-react';
+import { Plus, Wallet, CreditCard, Building, PiggyBank, Banknote, Edit, Trash2, ArrowRightLeft, History, RefreshCw } from 'lucide-react';
 import { useAccounts } from '../../hooks/useAccounts';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useToast } from '../../contexts/ToastContext';
@@ -10,7 +10,7 @@ import TransferModal from './TransferModal';
 import TransferHistory from './TransferHistory';
 
 const AccountList: React.FC = () => {
-  const { accounts, deleteAccount, getTotalBalance } = useAccounts();
+  const { accounts, deleteAccount, getTotalBalance, loadAccounts } = useAccounts();
   const { t } = useTheme();
   const { error: showError, success: showSuccess } = useToast();
   const [showAddModal, setShowAddModal] = useState(false);
@@ -18,6 +18,7 @@ const AccountList: React.FC = () => {
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [showTransferHistory, setShowTransferHistory] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const getIconComponent = (iconName: string) => {
     const icons = {
@@ -56,6 +57,19 @@ const AccountList: React.FC = () => {
     setShowEditModal(true);
   };
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await loadAccounts();
+      showSuccess('Data berhasil diperbarui', 'Informasi akun telah diperbarui');
+    } catch (error) {
+      console.error('Error refreshing accounts:', error);
+      showError('Gagal memperbarui data', 'Silakan coba lagi');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const selectedAccountData = accounts.find(a => a.id === selectedAccount);
 
   // Format account count for display
@@ -74,6 +88,14 @@ const AccountList: React.FC = () => {
           <p className="text-gray-600 dark:text-gray-400">{t('accounts.subtitle')}</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="flex items-center justify-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </button>
           {accounts.length >= 2 && (
             <>
               <button
