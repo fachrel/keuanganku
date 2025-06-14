@@ -147,10 +147,9 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
         .eq('user_id', user.id)
         .ilike('name', 'transfer')
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (searchError && searchError.code !== 'PGRST116') {
-        // PGRST116 is "not found" error, which is expected if category doesn't exist
+      if (searchError) {
         throw searchError;
       }
 
