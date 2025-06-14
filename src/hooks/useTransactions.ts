@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Transaction, Category } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import { supabase } from '../lib/supabase';
+import { logError } from '../utils/errorHandler';
 
 export const useTransactions = () => {
   const { user } = useAuth();
+  const { error: showError, success: showSuccess } = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
@@ -32,13 +35,15 @@ export const useTransactions = () => {
         .order('date', { ascending: false });
 
       if (error) {
-        console.error('Error loading transactions:', error);
+        logError(error, 'Loading transactions');
+        showError('Gagal memuat transaksi', 'Silakan refresh halaman');
         return;
       }
 
       setTransactions(data || []);
     } catch (error) {
-      console.error('Error loading transactions:', error);
+      logError(error, 'Loading transactions');
+      showError('Gagal memuat transaksi', 'Silakan refresh halaman');
     } finally {
       setLoading(false);
     }
@@ -55,13 +60,15 @@ export const useTransactions = () => {
         .order('name');
 
       if (error) {
-        console.error('Error loading categories:', error);
+        logError(error, 'Loading categories');
+        showError('Gagal memuat kategori', 'Silakan refresh halaman');
         return;
       }
 
       setCategories(data || []);
     } catch (error) {
-      console.error('Error loading categories:', error);
+      logError(error, 'Loading categories');
+      showError('Gagal memuat kategori', 'Silakan refresh halaman');
     }
   };
 
@@ -85,13 +92,21 @@ export const useTransactions = () => {
         .single();
 
       if (error) {
-        console.error('Error adding transaction:', error);
-        return;
+        logError(error, 'Adding transaction');
+        throw error;
       }
 
+      // Optimistic update
       setTransactions(prev => [data, ...prev]);
+      
+      // Reload to ensure consistency
+      setTimeout(() => {
+        loadTransactions();
+      }, 500);
+
     } catch (error) {
-      console.error('Error adding transaction:', error);
+      logError(error, 'Adding transaction');
+      throw error;
     }
   };
 
@@ -103,13 +118,23 @@ export const useTransactions = () => {
         .eq('id', id);
 
       if (error) {
-        console.error('Error deleting transaction:', error);
+        logError(error, 'Deleting transaction');
+        showError('Gagal menghapus transaksi', 'Silakan coba lagi');
         return;
       }
 
+      // Optimistic update
       setTransactions(prev => prev.filter(t => t.id !== id));
+      showSuccess('Transaksi berhasil dihapus', 'Data telah dihapus');
+      
+      // Reload to ensure consistency
+      setTimeout(() => {
+        loadTransactions();
+      }, 500);
+
     } catch (error) {
-      console.error('Error deleting transaction:', error);
+      logError(error, 'Deleting transaction');
+      showError('Gagal menghapus transaksi', 'Silakan coba lagi');
     }
   };
 
@@ -129,13 +154,16 @@ export const useTransactions = () => {
         .single();
 
       if (error) {
-        console.error('Error adding category:', error);
+        logError(error, 'Adding category');
+        showError('Gagal menambahkan kategori', 'Silakan coba lagi');
         return;
       }
 
       setCategories(prev => [...prev, data]);
+      showSuccess('Kategori berhasil ditambahkan', `Kategori ${data.name} telah dibuat`);
     } catch (error) {
-      console.error('Error adding category:', error);
+      logError(error, 'Adding category');
+      showError('Gagal menambahkan kategori', 'Silakan coba lagi');
     }
   };
 
@@ -149,12 +177,13 @@ export const useTransactions = () => {
         .limit(1);
 
       if (checkError) {
-        console.error('Error checking category usage:', checkError);
+        logError(checkError, 'Checking category usage');
+        showError('Gagal memeriksa penggunaan kategori', 'Silakan coba lagi');
         return false;
       }
 
       if (transactionsUsingCategory && transactionsUsingCategory.length > 0) {
-        alert('Tidak dapat menghapus kategori yang masih digunakan dalam transaksi. Hapus transaksi terkait terlebih dahulu.');
+        showError('Tidak dapat menghapus kategori', 'Kategori masih digunakan dalam transaksi');
         return false;
       }
 
@@ -166,12 +195,13 @@ export const useTransactions = () => {
         .limit(1);
 
       if (budgetCheckError) {
-        console.error('Error checking budget usage:', budgetCheckError);
+        logError(budgetCheckError, 'Checking budget usage');
+        showError('Gagal memeriksa penggunaan anggaran', 'Silakan coba lagi');
         return false;
       }
 
       if (budgetsUsingCategory && budgetsUsingCategory.length > 0) {
-        alert('Tidak dapat menghapus kategori yang masih digunakan dalam anggaran. Hapus anggaran terkait terlebih dahulu.');
+        showError('Tidak dapat menghapus kategori', 'Kategori masih digunakan dalam anggaran');
         return false;
       }
 
@@ -182,14 +212,17 @@ export const useTransactions = () => {
         .eq('id', id);
 
       if (error) {
-        console.error('Error deleting category:', error);
+        logError(error, 'Deleting category');
+        showError('Gagal menghapus kategori', 'Silakan coba lagi');
         return false;
       }
 
       setCategories(prev => prev.filter(c => c.id !== id));
+      showSuccess('Kategori berhasil dihapus', 'Kategori telah dihapus');
       return true;
     } catch (error) {
-      console.error('Error deleting category:', error);
+      logError(error, 'Deleting category');
+      showError('Gagal menghapus kategori', 'Silakan coba lagi');
       return false;
     }
   };

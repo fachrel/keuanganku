@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { Plus, Wallet, CreditCard, Building, PiggyBank, Banknote, Edit, Trash2 } from 'lucide-react';
 import { useAccounts } from '../../hooks/useAccounts';
 import { useTheme } from '../../contexts/ThemeContext';
-import { formatRupiah } from '../../utils/currency';
+import { useToast } from '../../contexts/ToastContext';
+import { formatRupiah, formatNumber } from '../../utils/currency';
 import AddAccountModal from './AddAccountModal';
 import EditAccountModal from './EditAccountModal';
 
 const AccountList: React.FC = () => {
   const { accounts, deleteAccount, getTotalBalance } = useAccounts();
   const { t } = useTheme();
+  const { error: showError, success: showSuccess } = useToast();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
@@ -34,9 +36,14 @@ const AccountList: React.FC = () => {
     return types[type as keyof typeof types] || t('accounts.types.other');
   };
 
-  const handleDeleteAccount = (id: string, name: string) => {
-    if (window.confirm(`${t('accounts.deleteConfirm')} "${name}"? ${t('accounts.cannotDelete')}`)) {
-      deleteAccount(id);
+  const handleDeleteAccount = async (id: string, name: string) => {
+    if (window.confirm(`${t('accounts.deleteConfirm')} "${name}"?`)) {
+      const success = await deleteAccount(id);
+      if (success) {
+        showSuccess('Akun berhasil dihapus', `Akun ${name} telah dihapus`);
+      } else {
+        showError('Gagal menghapus akun', t('accounts.cannotDelete'));
+      }
     }
   };
 
@@ -46,6 +53,14 @@ const AccountList: React.FC = () => {
   };
 
   const selectedAccountData = accounts.find(a => a.id === selectedAccount);
+
+  // Format account count for display
+  const formatAccountCount = (count: number) => {
+    if (count === 1) {
+      return '1 akun';
+    }
+    return `${formatNumber(count)} akun`;
+  };
 
   return (
     <div className="space-y-6">
@@ -71,10 +86,7 @@ const AccountList: React.FC = () => {
               <h3 className="text-lg font-semibold mb-2">{t('accounts.totalBalance')}</h3>
               <p className="text-3xl font-bold">{formatRupiah(getTotalBalance())}</p>
               <p className="text-blue-100 text-sm mt-1">
-                {t('accounts.acrossAccounts', { 
-                  count: accounts.length.toString(),
-                  plural: accounts.length !== 1 ? 's' : ''
-                })}
+                di {formatAccountCount(accounts.length)}
               </p>
             </div>
             <div className="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
@@ -140,7 +152,7 @@ const AccountList: React.FC = () => {
                   
                   <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {t('accounts.created')} {new Date(account.created_at).toLocaleDateString()}
+                      {t('accounts.created')} {new Date(account.created_at).toLocaleDateString('id-ID')}
                     </p>
                   </div>
                 </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { ToastProvider } from './contexts/ToastContext';
 import LoginForm from './components/Auth/LoginForm';
 import SignupForm from './components/Auth/SignupForm';
 import Layout from './components/Layout';
@@ -45,6 +46,8 @@ const MainApp: React.FC = () => {
         return <Dashboard />;
       case 'transactions':
         return <TransactionList />;
+      case 'accounts':
+        return <AccountList />;
       case 'categories':
         return <CategoryList />;
       case 'budgets':
@@ -53,8 +56,6 @@ const MainApp: React.FC = () => {
         return <SavingsGoals />;
       case 'reports':
         return <Reports />;
-      case 'accounts':
-        return <AccountList />;
       case 'settings':
         return <Settings />;
       default:
@@ -72,9 +73,11 @@ const MainApp: React.FC = () => {
 function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <MainApp />
-      </AuthProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <MainApp />
+        </AuthProvider>
+      </ToastProvider>
     </ThemeProvider>
   );
 }
