@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { X, ArrowRight, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Account } from '../../types';
 import { useAccounts } from '../../hooks/useAccounts';
-import { useTransactions } from '../../hooks/useTransactions';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import { formatRupiah } from '../../utils/currency';
@@ -16,7 +15,6 @@ interface TransferModalProps {
 
 const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose }) => {
   const { user } = useAuth();
-  const { addTransaction, loadTransactions } = useTransactions();
   const { loadAccounts } = useAccounts();
   const { error: showError, success: showSuccess } = useToast();
   const [loading, setLoading] = useState(false);
@@ -28,19 +26,6 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
     description: '',
     date: new Date().toISOString().split('T')[0],
   });
-
-  // Handle body scroll when modal opens/closes
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
 
   const sourceAccount = accounts.find(a => a.id === formData.sourceAccountId);
   const destinationAccount = accounts.find(a => a.id === formData.destinationAccountId);
@@ -86,32 +71,55 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
 
     setLoading(true);
     try {
+      // Get or create transfer category
       const transferCategoryId = await getOrCreateTransferCategory();
+      
+      // Update source account balance directly
+      const { error: sourceError } = await supabase
+        .from('accounts')
+        .update({ balance: sourceAccount.balance - transferAmount })
+        .eq('id', sourceAccount.id);
+        
+      if (sourceError) throw sourceError;
+      
+      // Update destination account balance directly
+      const { error: destError } = await supabase
+        .from('accounts')
+        .update({ balance: destinationAccount.balance + transferAmount })
+        .eq('id', destinationAccount.id);
+        
+      if (destError) throw destError;
+      
+      // Create transfer records for history tracking
+      const { error: transferError } = await supabase
+        .from('transactions')
+        .insert([
+          {
+            // Source account record (not an expense)
+            amount: transferAmount,
+            description: `Transfer ke ${destinationAccount.name}: ${formData.description}`,
+            category_id: transferCategoryId,
+            type: 'expense', // Just for display purposes
+            date: formData.date,
+            user_id: user.id,
+            account_id: formData.sourceAccountId,
+          },
+          {
+            // Destination account record (not an income)
+            amount: transferAmount,
+            description: `Transfer dari ${sourceAccount.name}: ${formData.description}`,
+            category_id: transferCategoryId,
+            type: 'income', // Just for display purposes
+            date: formData.date,
+            user_id: user.id,
+            account_id: formData.destinationAccountId,
+          }
+        ]);
+        
+      if (transferError) throw transferError;
 
-      // Create expense transaction for source account
-      await addTransaction({
-        amount: transferAmount,
-        description: `Transfer ke ${destinationAccount.name}: ${formData.description}`,
-        category_id: transferCategoryId,
-        type: 'expense',
-        date: formData.date,
-        user_id: user.id,
-        account_id: formData.sourceAccountId,
-      });
-
-      // Create income transaction for destination account
-      await addTransaction({
-        amount: transferAmount,
-        description: `Transfer dari ${sourceAccount.name}: ${formData.description}`,
-        category_id: transferCategoryId,
-        type: 'income',
-        date: formData.date,
-        user_id: user.id,
-        account_id: formData.destinationAccountId,
-      });
-
-      // Reload data
-      await Promise.all([loadTransactions(), loadAccounts()]);
+      // Reload accounts to get updated balances
+      await loadAccounts();
 
       showSuccess(
         'Transfer berhasil',
@@ -199,11 +207,11 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
   if (showConfirmation) {
     return (
       <div 
-        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        className="modal-container bg-black bg-opacity-50"
         onClick={handleBackdropClick}
       >
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full">
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="modal-content max-w-md w-full">
+          <div className="modal-header">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Konfirmasi Transfer</h2>
             <button
               onClick={() => setShowConfirmation(false)}
@@ -213,7 +221,7 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
             </button>
           </div>
 
-          <div className="p-6">
+          <div className="modal-body">
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
               <div className="flex items-center space-x-2 mb-3">
                 <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -248,27 +256,27 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
                 <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
                 <div className="text-sm text-yellow-800 dark:text-yellow-200">
                   <p className="font-medium mb-1">Peringatan</p>
-                  <p>Transfer ini akan membuat 2 transaksi: pengeluaran dari akun sumber dan pemasukan ke akun tujuan.</p>
+                  <p>Transfer ini akan memindahkan dana dari satu akun ke akun lainnya. Transaksi ini tidak dihitung sebagai pemasukan atau pengeluaran dalam laporan keuangan Anda.</p>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div className="flex space-x-3">
-              <button
-                onClick={() => setShowConfirmation(false)}
-                disabled={loading}
-                className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
-              >
-                Batal
-              </button>
-              <button
-                onClick={handleConfirmTransfer}
-                disabled={loading}
-                className="flex-1 px-4 py-2 text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Memproses...' : 'Konfirmasi Transfer'}
-              </button>
-            </div>
+          <div className="modal-footer">
+            <button
+              onClick={() => setShowConfirmation(false)}
+              disabled={loading}
+              className="flex-1 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors disabled:opacity-50"
+            >
+              Batal
+            </button>
+            <button
+              onClick={handleConfirmTransfer}
+              disabled={loading}
+              className="flex-1 px-4 py-2 text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Memproses...' : 'Konfirmasi Transfer'}
+            </button>
           </div>
         </div>
       </div>
@@ -277,11 +285,11 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="modal-container bg-black bg-opacity-50"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full max-h-[95vh] flex flex-col">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+      <div className="modal-content max-w-md w-full">
+        <div className="modal-header">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Transfer Dana</h2>
           <button
             onClick={onClose}
@@ -291,8 +299,8 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <div className="modal-body">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Source Account */}
             <div>
               <label htmlFor="sourceAccount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -421,7 +429,7 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, accounts, onClose
           </form>
         </div>
 
-        <div className="flex space-x-3 p-6 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="modal-footer">
           <button
             type="button"
             onClick={onClose}

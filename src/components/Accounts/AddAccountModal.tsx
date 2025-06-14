@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, Wallet, CreditCard, Building, PiggyBank, Banknote } from 'lucide-react';
 import { useAccounts } from '../../hooks/useAccounts';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -25,19 +25,6 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
     icon: 'Banknote',
   });
   const [loading, setLoading] = useState(false);
-
-  // Handle body scroll when modal opens/closes
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
 
   const accountTypes = [
     { value: 'cash', label: t('accounts.types.cash'), icon: Banknote },
@@ -110,11 +97,11 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      className="modal-container bg-black bg-opacity-50"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full max-h-[95vh] flex flex-col">
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
+      <div className="modal-content max-w-md w-full">
+        <div className="modal-header">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">{t('accounts.addAccount')}</h2>
           <button
             onClick={onClose}
@@ -124,8 +111,8 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
-          <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
+        <div className="modal-body">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {t('accounts.accountName')}
@@ -260,7 +247,7 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
           </form>
         </div>
 
-        <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 p-4 sm:p-6 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
+        <div className="modal-footer">
           <button
             type="button"
             onClick={onClose}

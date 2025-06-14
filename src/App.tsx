@@ -19,24 +19,36 @@ import AccountList from './components/Accounts/AccountList';
 // Add global styles for modal handling
 const GlobalStyles = () => {
   useEffect(() => {
+    // Add a meta tag for mobile viewport
+    const metaTag = document.createElement('meta');
+    metaTag.name = 'viewport';
+    metaTag.content = 'width=device-width, initial-scale=1.0, viewport-fit=cover';
+    document.head.appendChild(metaTag);
+    
     // Add a style tag to handle modal backdrops
     const styleTag = document.createElement('style');
     styleTag.innerHTML = `
-      .modal-open {
-        overflow: hidden;
+      html {
+        height: -webkit-fill-available;
       }
       
-      @media (max-width: 640px) {
-        .modal-open {
-          position: fixed;
-          width: 100%;
-        }
+      body {
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+      }
+      
+      .modal-open {
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+        height: 100%;
       }
     `;
     document.head.appendChild(styleTag);
     
     return () => {
       document.head.removeChild(styleTag);
+      document.head.removeChild(metaTag);
     };
   }, []);
   
@@ -74,7 +86,6 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 const MainApp: React.FC = () => {
   return (
     <Router>
-      <GlobalStyles />
       <Routes>
         <Route path="/auth" element={<AuthScreen />} />
         <Route path="/*" element={
@@ -106,6 +117,7 @@ function App() {
     <ThemeProvider>
       <ToastProvider>
         <AuthProvider>
+          <GlobalStyles />
           <MainApp />
         </AuthProvider>
       </ToastProvider>

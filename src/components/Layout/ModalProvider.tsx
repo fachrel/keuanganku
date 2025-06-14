@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 // Modal types
 export type ModalType = 
@@ -43,16 +43,48 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [modalData, setModalData] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Handle body scroll lock when modal is open
+  useEffect(() => {
+    if (isModalOpen) {
+      // Add class to body to prevent scrolling
+      document.body.classList.add('modal-open');
+      
+      // Save current scroll position
+      const scrollY = window.scrollY;
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    } else {
+      // Restore scrolling
+      const scrollY = document.body.style.top;
+      document.body.classList.remove('modal-open');
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      
+      // Restore scroll position
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0', 10) * -1);
+      }
+    }
+    
+    return () => {
+      // Cleanup
+      document.body.classList.remove('modal-open');
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+    };
+  }, [isModalOpen]);
+
   const openModal = (type: ModalType, data?: any) => {
     setModalType(type);
     setModalData(data);
     setIsModalOpen(true);
-    document.body.style.overflow = 'hidden';
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
-    document.body.style.overflow = 'unset';
     
     // Delay clearing the modal type and data to allow for exit animations
     setTimeout(() => {
