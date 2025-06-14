@@ -77,3 +77,25 @@ export interface MonthlyBudget {
   updated_at: string;
   category: Category;
 }
+
+export interface WishlistItem {
+  id: string;
+  name: string;
+  description?: string;
+  cost: number;
+  urgency: 'low' | 'medium' | 'high';
+  image_url?: string;
+  due_date?: string;
+  is_archived: boolean;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AuthContextType {
+  user: User | null;
+  login: (email: string, password: string) => Promise<boolean>;
+  signup: (email: string, password: string, name: string) => Promise<boolean>;
+  logout: () => void;
+  loading: boolean;
+}

@@ -14,7 +14,8 @@ import {
   Moon,
   Sun,
   Globe,
-  Wallet
+  Wallet,
+  Heart
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -38,6 +39,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage, onPageChange }) 
     { name: t('nav.categories'), icon: PieChart, id: 'categories' },
     { name: t('nav.budgets'), icon: Target, id: 'budgets' },
     { name: t('nav.savings'), icon: PiggyBank, id: 'savings' },
+    { name: t('nav.wishlist'), icon: Heart, id: 'wishlist' },
     { name: t('nav.reports'), icon: BarChart3, id: 'reports' },
     { name: t('nav.settings'), icon: Settings, id: 'settings' },
   ];

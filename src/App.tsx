@@ -10,6 +10,7 @@ import TransactionList from './components/Transactions/TransactionList';
 import CategoryList from './components/Categories/CategoryList';
 import BudgetList from './components/Budget/BudgetList';
 import SavingsGoals from './components/SavingsGoals/SavingsGoals';
+import WishlistPage from './components/Wishlist/WishlistPage';
 import Reports from './components/Reports/Reports';
 import Settings from './components/Settings/Settings';
 import AccountList from './components/Accounts/AccountList';
@@ -54,6 +55,8 @@ const MainApp: React.FC = () => {
         return <BudgetList />;
       case 'savings':
         return <SavingsGoals />;
+      case 'wishlist':
+        return <WishlistPage />;
       case 'reports':
         return <Reports />;
       case 'settings':

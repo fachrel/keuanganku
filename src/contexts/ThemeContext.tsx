@@ -27,14 +27,15 @@ const translations = {
     // Navigation
     'nav.dashboard': 'Dashboard',
     'nav.transactions': 'Transaksi',
+    'nav.accounts': 'Akun',
     'nav.categories': 'Kategori',
     'nav.budgets': 'Anggaran',
     'nav.savings': 'Tujuan Tabungan',
+    'nav.wishlist': 'Wishlist',
     'nav.reports': 'Laporan',
     'nav.settings': 'Pengaturan',
     'nav.logout': 'Keluar',
     'nav.loggedInAs': 'Masuk sebagai',
-    'nav.accounts': 'Akun',
     
     // Dashboard
     'dashboard.title': 'Dashboard',
@@ -191,6 +192,26 @@ const translations = {
     'savings.target': 'Target:',
     'savings.deadline': 'Deadline:',
     
+    // Wishlist
+    'wishlist.title': 'Wishlist',
+    'wishlist.subtitle': 'Kelola keinginan Anda dan hindari pembelian impulsif',
+    'wishlist.addItem': 'Tambah Item',
+    'wishlist.totalItems': 'Total Item',
+    'wishlist.totalCost': 'Total Biaya',
+    'wishlist.highPriority': 'Prioritas Tinggi',
+    'wishlist.upcomingDeadlines': 'Mendekati Deadline',
+    'wishlist.activeWishlist': 'Wishlist Aktif',
+    'wishlist.archived': 'Arsip',
+    'wishlist.noItems': 'Belum ada item wishlist',
+    'wishlist.noItemsDesc': 'Mulai dengan menambahkan item pertama ke wishlist Anda',
+    'wishlist.addFirstItem': 'Tambah Item Pertama',
+    'wishlist.urgency.low': 'Rendah',
+    'wishlist.urgency.medium': 'Sedang',
+    'wishlist.urgency.high': 'Tinggi',
+    'wishlist.archive': 'Arsipkan',
+    'wishlist.unarchive': 'Kembalikan',
+    'wishlist.deleteConfirm': 'Apakah Anda yakin ingin menghapus item ini?',
+    
     // Reports
     'reports.title': 'Laporan Keuangan',
     'reports.subtitle': 'Analisis mendalam tentang pola keuangan Anda',
@@ -279,6 +300,7 @@ const translations = {
     'common.updating': 'Mengupdate...',
     'common.deleting': 'Menghapus...',
     'common.processing': 'Memproses...',
+    'common.color': 'Warna',
 
     // Transaction specific
     'transactions': 'Transaksi',
@@ -316,14 +338,15 @@ const translations = {
     // Navigation
     'nav.dashboard': 'Dashboard',
     'nav.transactions': 'Transactions',
+    'nav.accounts': 'Accounts',
     'nav.categories': 'Categories',
     'nav.budgets': 'Budgets',
     'nav.savings': 'Savings Goals',
+    'nav.wishlist': 'Wishlist',
     'nav.reports': 'Reports',
     'nav.settings': 'Settings',
     'nav.logout': 'Logout',
     'nav.loggedInAs': 'Logged in as',
-    'nav.accounts': 'Accounts',
     
     // Dashboard
     'dashboard.title': 'Dashboard',
@@ -480,6 +503,26 @@ const translations = {
     'savings.target': 'Target:',
     'savings.deadline': 'Deadline:',
     
+    // Wishlist
+    'wishlist.title': 'Wishlist',
+    'wishlist.subtitle': 'Manage your desires and avoid impulse buying',
+    'wishlist.addItem': 'Add Item',
+    'wishlist.totalItems': 'Total Items',
+    'wishlist.totalCost': 'Total Cost',
+    'wishlist.highPriority': 'High Priority',
+    'wishlist.upcomingDeadlines': 'Upcoming Deadlines',
+    'wishlist.activeWishlist': 'Active Wishlist',
+    'wishlist.archived': 'Archived',
+    'wishlist.noItems': 'No wishlist items yet',
+    'wishlist.noItemsDesc': 'Start by adding your first item to your wishlist',
+    'wishlist.addFirstItem': 'Add First Item',
+    'wishlist.urgency.low': 'Low',
+    'wishlist.urgency.medium': 'Medium',
+    'wishlist.urgency.high': 'High',
+    'wishlist.archive': 'Archive',
+    'wishlist.unarchive': 'Unarchive',
+    'wishlist.deleteConfirm': 'Are you sure you want to delete this item?',
+    
     // Reports
     'reports.title': 'Financial Reports',
     'reports.subtitle': 'Deep analysis of your financial patterns',
@@ -568,6 +611,7 @@ const translations = {
     'common.updating': 'Updating...',
     'common.deleting': 'Deleting...',
     'common.processing': 'Processing...',
+    'common.color': 'Color',
 
     // Transaction specific
     'transactions': 'Transactions',
