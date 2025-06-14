@@ -1,44 +1,76 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import React, { useState } from 'react';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import LoginForm from './components/Auth/LoginForm';
+import SignupForm from './components/Auth/SignupForm';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard/Dashboard';
 import TransactionList from './components/Transactions/TransactionList';
 import CategoryList from './components/Categories/CategoryList';
 import BudgetList from './components/Budget/BudgetList';
-import MonthlyBudgetList from './components/Budget/MonthlyBudgetList';
 import SavingsGoals from './components/SavingsGoals/SavingsGoals';
-import AccountList from './components/Accounts/AccountList';
 import Reports from './components/Reports/Reports';
 import Settings from './components/Settings/Settings';
-import LoginForm from './components/Auth/LoginForm';
-import SignupForm from './components/Auth/SignupForm';
+
+const AuthScreen: React.FC = () => {
+  const [isLogin, setIsLogin] = useState(true);
+
+  return isLogin ? (
+    <LoginForm onSwitchToSignup={() => setIsLogin(false)} />
+  ) : (
+    <SignupForm onSwitchToLogin={() => setIsLogin(true)} />
+  );
+};
+
+const MainApp: React.FC = () => {
+  const { user, loading } = useAuth();
+  const [currentPage, setCurrentPage] = useState('dashboard');
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthScreen />;
+  }
+
+  const renderCurrentPage = () => {
+    switch (currentPage) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'transactions':
+        return <TransactionList />;
+      case 'categories':
+        return <CategoryList />;
+      case 'budgets':
+        return <BudgetList />;
+      case 'savings':
+        return <SavingsGoals />;
+      case 'reports':
+        return <Reports />;
+      case 'settings':
+        return <Settings />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
+  return (
+    <Layout currentPage={currentPage} onPageChange={setCurrentPage}>
+      {renderCurrentPage()}
+    </Layout>
+  );
+};
 
 function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Router>
-          <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-            <Routes>
-              <Route path="/login" element={<LoginForm />} />
-              <Route path="/signup" element={<SignupForm />} />
-              <Route path="/" element={<Layout />}>
-                <Route index element={<Dashboard />} />
-                <Route path="transactions" element={<TransactionList />} />
-                <Route path="categories" element={<CategoryList />} />
-                <Route path="budgets" element={<BudgetList />} />
-                <Route path="monthly-budgets" element={<MonthlyBudgetList />} />
-                <Route path="savings" element={<SavingsGoals />} />
-                <Route path="accounts" element={<AccountList />} />
-                <Route path="reports" element={<Reports />} />
-                <Route path="settings" element={<Settings />} />
-              </Route>
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </div>
-        </Router>
+        <MainApp />
       </AuthProvider>
     </ThemeProvider>
   );
