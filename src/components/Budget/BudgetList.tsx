@@ -132,7 +132,7 @@ const BudgetList: React.FC = () => {
             title={t('budget.checkReset')}
           >
             <RefreshCw className={`w-4 h-4 ${isResetting ? 'animate-spin' : ''}`} />
-            <span>{t('budget.refresh')}</span>
+            <span>Reset Periode</span>
           </button>
           <button
             onClick={() => setShowAddModal(true)}
