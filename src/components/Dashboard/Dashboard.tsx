@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -13,12 +13,15 @@ import {
   ArrowDownRight,
   Activity,
   Percent,
-  BarChart3
+  BarChart3,
+  RefreshCw,
+  Clock
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, Area, AreaChart } from 'recharts';
 import { useTransactions } from '../../hooks/useTransactions';
 import { useBudgets } from '../../hooks/useBudgets';
 import { useSavingsGoals } from '../../hooks/useSavingsGoals';
+import { useAccounts } from '../../hooks/useAccounts';
 import { useTheme } from '../../contexts/ThemeContext';
 import { formatRupiah } from '../../utils/currency';
 
@@ -26,7 +29,31 @@ const Dashboard: React.FC = () => {
   const { transactions, categories } = useTransactions();
   const { budgets } = useBudgets();
   const { savingsGoals } = useSavingsGoals();
+  const { accounts, getTotalBalance, loadAccounts } = useAccounts();
   const { t, theme } = useTheme();
+  const [lastSyncTime, setLastSyncTime] = useState<Date>(new Date());
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Auto-refresh data every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleRefreshData();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleRefreshData = async () => {
+    setIsRefreshing(true);
+    try {
+      await loadAccounts();
+      setLastSyncTime(new Date());
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const stats = useMemo(() => {
     const currentMonth = new Date().getMonth();
@@ -69,6 +96,9 @@ const Dashboard: React.FC = () => {
     // Calculate savings rate
     const savingsRate = currentIncome > 0 ? ((currentIncome - currentExpenses) / currentIncome) * 100 : 0;
 
+    // Get total balance from accounts
+    const totalBalance = getTotalBalance();
+
     return {
       totalIncome: currentIncome,
       totalExpenses: currentExpenses,
@@ -79,8 +109,9 @@ const Dashboard: React.FC = () => {
       incomeChange: lastIncome !== 0 ? ((currentIncome - lastIncome) / lastIncome) * 100 : 0,
       expenseChange: lastExpenses !== 0 ? ((currentExpenses - lastExpenses) / lastExpenses) * 100 : 0,
       savingsRate,
+      totalBalance,
     };
-  }, [transactions]);
+  }, [transactions, getTotalBalance]);
 
   // Enhanced chart data
   const expensesByCategory = useMemo(() => {
@@ -230,36 +261,45 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('dashboard.title')}</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-1">{t('dashboard.subtitle')}</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('dashboard.title')}</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">{t('dashboard.subtitle')}</p>
+        </div>
+        <div className="flex items-center space-x-4 mt-4 sm:mt-0">
+          <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+            <Clock className="w-4 h-4" />
+            <span>Last sync: {lastSyncTime.toLocaleTimeString('id-ID')}</span>
+          </div>
+          <button
+            onClick={handleRefreshData}
+            disabled={isRefreshing}
+            className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
 
-      {/* Main Stats Grid */}
+      {/* Enhanced Main Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Total Balance */}
+        {/* Total Balance from Accounts */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('dashboard.totalBalance')}</p>
-              <p className={`text-2xl font-bold ${stats.balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                {formatRupiah(stats.balance)}
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Balance (Accounts)</p>
+              <p className={`text-2xl font-bold ${stats.totalBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                {formatRupiah(stats.totalBalance)}
               </p>
-              <div className="flex items-center mt-2">
-                {stats.cashFlowChange >= 0 ? (
-                  <ArrowUpRight className="w-4 h-4 text-green-500" />
-                ) : (
-                  <ArrowDownRight className="w-4 h-4 text-red-500" />
-                )}
-                <span className={`text-sm ml-1 ${stats.cashFlowChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                  {Math.abs(stats.cashFlowChange).toFixed(1)}% {t('dashboard.fromLastMonth')}
-                </span>
-              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Across {accounts.length} account{accounts.length !== 1 ? 's' : ''}
+              </p>
             </div>
             <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-              stats.balance >= 0 ? 'bg-green-100 dark:bg-green-900/20' : 'bg-red-100 dark:bg-red-900/20'
+              stats.totalBalance >= 0 ? 'bg-green-100 dark:bg-green-900/20' : 'bg-red-100 dark:bg-red-900/20'
             }`}>
-              <DollarSign className={`w-6 h-6 ${stats.balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`} />
+              <DollarSign className={`w-6 h-6 ${stats.totalBalance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`} />
             </div>
           </div>
         </div>

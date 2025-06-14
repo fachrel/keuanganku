@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Plus, Wallet, CreditCard, Building, PiggyBank, Banknote, Edit, Trash2 } from 'lucide-react';
+import { Plus, Wallet, CreditCard, Building, PiggyBank, Banknote, Edit, Trash2, ArrowRightLeft, History } from 'lucide-react';
 import { useAccounts } from '../../hooks/useAccounts';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useToast } from '../../contexts/ToastContext';
 import { formatRupiah, formatNumber } from '../../utils/currency';
 import AddAccountModal from './AddAccountModal';
 import EditAccountModal from './EditAccountModal';
+import TransferModal from './TransferModal';
+import TransferHistory from './TransferHistory';
 
 const AccountList: React.FC = () => {
   const { accounts, deleteAccount, getTotalBalance } = useAccounts();
@@ -13,6 +15,8 @@ const AccountList: React.FC = () => {
   const { error: showError, success: showSuccess } = useToast();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [showTransferHistory, setShowTransferHistory] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
 
   const getIconComponent = (iconName: string) => {
@@ -64,18 +68,38 @@ const AccountList: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('accounts.title')}</h1>
           <p className="text-gray-600 dark:text-gray-400">{t('accounts.subtitle')}</p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
-        >
-          <Plus className="w-4 h-4" />
-          <span>{t('accounts.addAccount')}</span>
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3">
+          {accounts.length >= 2 && (
+            <>
+              <button
+                onClick={() => setShowTransferHistory(!showTransferHistory)}
+                className="flex items-center justify-center space-x-2 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+              >
+                <History className="w-4 h-4" />
+                <span>Riwayat Transfer</span>
+              </button>
+              <button
+                onClick={() => setShowTransferModal(true)}
+                className="flex items-center justify-center space-x-2 px-4 py-2 text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors"
+              >
+                <ArrowRightLeft className="w-4 h-4" />
+                <span>Transfer Dana</span>
+              </button>
+            </>
+          )}
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
+          >
+            <Plus className="w-4 h-4" />
+            <span>{t('accounts.addAccount')}</span>
+          </button>
+        </div>
       </div>
 
       {/* Total Balance Card */}
@@ -93,6 +117,14 @@ const AccountList: React.FC = () => {
               <Wallet className="w-8 h-8" />
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Transfer History */}
+      {showTransferHistory && accounts.length >= 2 && (
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Riwayat Transfer</h2>
+          <TransferHistory accounts={accounts} />
         </div>
       )}
 
@@ -177,7 +209,7 @@ const AccountList: React.FC = () => {
         </div>
       )}
 
-      {/* Add Account Modal */}
+      {/* Modals */}
       {showAddModal && (
         <AddAccountModal
           isOpen={showAddModal}
@@ -185,7 +217,6 @@ const AccountList: React.FC = () => {
         />
       )}
 
-      {/* Edit Account Modal */}
       {showEditModal && selectedAccountData && (
         <EditAccountModal
           isOpen={showEditModal}
@@ -194,6 +225,14 @@ const AccountList: React.FC = () => {
             setShowEditModal(false);
             setSelectedAccount(null);
           }}
+        />
+      )}
+
+      {showTransferModal && (
+        <TransferModal
+          isOpen={showTransferModal}
+          accounts={accounts}
+          onClose={() => setShowTransferModal(false)}
         />
       )}
     </div>

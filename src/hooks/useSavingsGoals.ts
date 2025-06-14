@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { SavingsGoal } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import { supabase } from '../lib/supabase';
+import { logError } from '../utils/errorHandler';
 
 export const useSavingsGoals = () => {
   const { user } = useAuth();
+  const { error: showError, success: showSuccess } = useToast();
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -26,13 +29,15 @@ export const useSavingsGoals = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error loading savings goals:', error);
+        logError(error, 'Loading savings goals');
+        showError('Gagal memuat tujuan tabungan', 'Silakan refresh halaman');
         return;
       }
 
       setSavingsGoals(data || []);
     } catch (error) {
-      console.error('Error loading savings goals:', error);
+      logError(error, 'Loading savings goals');
+      showError('Gagal memuat tujuan tabungan', 'Silakan refresh halaman');
     } finally {
       setLoading(false);
     }
@@ -56,13 +61,16 @@ export const useSavingsGoals = () => {
         .single();
 
       if (error) {
-        console.error('Error adding savings goal:', error);
-        return;
+        logError(error, 'Adding savings goal');
+        throw error;
       }
 
+      // Immediate optimistic update
       setSavingsGoals(prev => [data, ...prev]);
+      showSuccess('Tujuan tabungan berhasil ditambahkan', `Tujuan ${data.name} telah dibuat`);
     } catch (error) {
-      console.error('Error adding savings goal:', error);
+      logError(error, 'Adding savings goal');
+      throw error;
     }
   };
 
@@ -76,13 +84,17 @@ export const useSavingsGoals = () => {
         .single();
 
       if (error) {
-        console.error('Error updating savings goal:', error);
+        logError(error, 'Updating savings goal');
+        showError('Gagal mengupdate tujuan tabungan', 'Silakan coba lagi');
         return;
       }
 
+      // Immediate optimistic update
       setSavingsGoals(prev => prev.map(g => g.id === id ? data : g));
+      showSuccess('Tujuan tabungan berhasil diupdate', 'Perubahan telah disimpan');
     } catch (error) {
-      console.error('Error updating savings goal:', error);
+      logError(error, 'Updating savings goal');
+      showError('Gagal mengupdate tujuan tabungan', 'Silakan coba lagi');
     }
   };
 
@@ -94,17 +106,21 @@ export const useSavingsGoals = () => {
         .eq('id', id);
 
       if (error) {
-        console.error('Error deleting savings goal:', error);
+        logError(error, 'Deleting savings goal');
+        showError('Gagal menghapus tujuan tabungan', 'Silakan coba lagi');
         return;
       }
 
+      // Immediate optimistic update
       setSavingsGoals(prev => prev.filter(g => g.id !== id));
+      showSuccess('Tujuan tabungan berhasil dihapus', 'Tujuan telah dihapus');
     } catch (error) {
-      console.error('Error deleting savings goal:', error);
+      logError(error, 'Deleting savings goal');
+      showError('Gagal menghapus tujuan tabungan', 'Silakan coba lagi');
     }
   };
 
-  const contributeToGoal = async (goalId: string, amount: number, description: string) => {
+  const contributeToGoal = async (goalId: string, amount: number, description: string, accountId?: string) => {
     if (!user) return false;
 
     try {
@@ -116,7 +132,8 @@ export const useSavingsGoals = () => {
         .single();
 
       if (goalError || !goal) {
-        console.error('Error fetching goal:', goalError);
+        logError(goalError, 'Fetching goal for contribution');
+        showError('Gagal mengambil data tujuan', 'Silakan coba lagi');
         return false;
       }
 
@@ -148,7 +165,8 @@ export const useSavingsGoals = () => {
           .single();
 
         if (categoryError) {
-          console.error('Error creating savings category:', categoryError);
+          logError(categoryError, 'Creating savings category');
+          showError('Gagal membuat kategori tabungan', 'Silakan coba lagi');
           return false;
         }
         savingsCategory = newCategory;
@@ -165,11 +183,13 @@ export const useSavingsGoals = () => {
             type: 'expense',
             date: new Date().toISOString().split('T')[0],
             user_id: user.id,
+            account_id: accountId || null,
           },
         ]);
 
       if (transactionError) {
-        console.error('Error creating transaction:', transactionError);
+        logError(transactionError, 'Creating contribution transaction');
+        showError('Gagal membuat transaksi', 'Silakan coba lagi');
         return false;
       }
 
@@ -184,15 +204,23 @@ export const useSavingsGoals = () => {
         .eq('id', goalId);
 
       if (updateError) {
-        console.error('Error updating savings goal:', updateError);
+        logError(updateError, 'Updating savings goal after contribution');
+        showError('Gagal mengupdate tujuan tabungan', 'Silakan coba lagi');
         return false;
       }
 
       // Reload goals to get updated data
       loadSavingsGoals();
+      
+      showSuccess(
+        'Kontribusi berhasil ditambahkan',
+        `${description} sebesar ${amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' })} telah ditambahkan`
+      );
+      
       return true;
     } catch (error) {
-      console.error('Error contributing to goal:', error);
+      logError(error, 'Contributing to savings goal');
+      showError('Gagal menambahkan kontribusi', 'Silakan coba lagi');
       return false;
     }
   };

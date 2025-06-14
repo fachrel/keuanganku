@@ -92,8 +92,8 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('accounts.addAccount')}</h2>
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">{t('accounts.addAccount')}</h2>
           <button
             onClick={onClose}
             className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -102,7 +102,7 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {t('accounts.accountName')}
@@ -130,14 +130,14 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
                     key={type.value}
                     type="button"
                     onClick={() => setFormData({ ...formData, type: type.value, icon: type.icon.name })}
-                    className={`p-3 rounded-lg border-2 transition-all ${
+                    className={`p-2 sm:p-3 rounded-lg border-2 transition-all ${
                       formData.type === type.value
                         ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
                         : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300'
                     }`}
                   >
                     <div className="flex flex-col items-center space-y-1">
-                      <IconComponent className="w-5 h-5" />
+                      <IconComponent className="w-4 h-4 sm:w-5 sm:h-5" />
                       <span className="text-xs font-medium">{type.label}</span>
                     </div>
                   </button>
@@ -172,7 +172,7 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
                   key={color}
                   type="button"
                   onClick={() => setFormData({ ...formData, color })}
-                  className={`w-10 h-10 rounded-lg border-2 transition-all ${
+                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg border-2 transition-all ${
                     formData.color === color
                       ? 'border-gray-900 dark:border-white scale-110'
                       : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
@@ -185,7 +185,7 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
               type="color"
               value={formData.color}
               onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-              className="w-full h-10 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer bg-white dark:bg-gray-700"
+              className="w-full h-8 sm:h-10 rounded-lg border border-gray-300 dark:border-gray-600 cursor-pointer bg-white dark:bg-gray-700"
             />
           </div>
 
@@ -201,13 +201,13 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
                     key={option.value}
                     type="button"
                     onClick={() => setFormData({ ...formData, icon: option.value })}
-                    className={`p-3 rounded-lg border-2 transition-all ${
+                    className={`p-2 sm:p-3 rounded-lg border-2 transition-all ${
                       formData.icon === option.value
                         ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400'
                         : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300'
                     }`}
                   >
-                    <IconComponent className="w-5 h-5 mx-auto" />
+                    <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 mx-auto" />
                   </button>
                 );
               })}
@@ -217,25 +217,25 @@ const AddAccountModal: React.FC<AddAccountModalProps> = ({
           {/* Preview */}
           <div className="flex items-center justify-center space-x-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <div
-              className="w-12 h-12 rounded-lg flex items-center justify-center"
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center"
               style={{ backgroundColor: formData.color + '20' }}
             >
               {iconOptions.find(i => i.value === formData.icon) && 
                 React.createElement(iconOptions.find(i => i.value === formData.icon)!.icon, {
-                  className: "w-6 h-6",
+                  className: "w-5 h-5 sm:w-6 sm:h-6",
                   style: { color: formData.color }
                 })
               }
             </div>
             <div>
-              <p className="font-medium text-gray-900 dark:text-white">{formData.name || t('accounts.accountName')}</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="font-medium text-gray-900 dark:text-white text-sm sm:text-base">{formData.name || t('accounts.accountName')}</p>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                 {accountTypes.find(t => t.value === formData.type)?.label} • {formatRupiah(parseFloat(formData.balance) || 0)}
               </p>
             </div>
           </div>
 
-          <div className="flex space-x-3 pt-4">
+          <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 pt-4">
             <button
               type="button"
               onClick={onClose}

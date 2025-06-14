@@ -1,23 +1,28 @@
 import React, { useState } from 'react';
-import { X, PiggyBank, DollarSign } from 'lucide-react';
+import { X, PiggyBank, DollarSign, CreditCard, AlertTriangle } from 'lucide-react';
 import { SavingsGoal } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useAccounts } from '../../hooks/useAccounts';
 import { formatRupiah } from '../../utils/currency';
 
 interface ContributeModalProps {
   goal: SavingsGoal;
   onClose: () => void;
-  onContribute: (goalId: string, amount: number, description: string) => Promise<boolean>;
+  onContribute: (goalId: string, amount: number, description: string, accountId?: string) => Promise<boolean>;
 }
 
 const ContributeModal: React.FC<ContributeModalProps> = ({ goal, onClose, onContribute }) => {
   const { t } = useTheme();
+  const { accounts } = useAccounts();
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState(`Kontribusi untuk ${goal.name}`);
+  const [selectedAccountId, setSelectedAccountId] = useState('');
   const [loading, setLoading] = useState(false);
 
   const remainingAmount = goal.target_amount - goal.current_amount;
   const progress = (goal.current_amount / goal.target_amount) * 100;
+  const selectedAccount = accounts.find(a => a.id === selectedAccountId);
+  const contributionAmount = parseFloat(amount) || 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,9 +31,14 @@ const ContributeModal: React.FC<ContributeModalProps> = ({ goal, onClose, onCont
       return;
     }
 
-    const contributionAmount = parseFloat(amount);
     if (contributionAmount <= 0) {
       alert('Jumlah kontribusi harus lebih dari 0');
+      return;
+    }
+
+    // Check account balance if account is selected
+    if (selectedAccount && contributionAmount > selectedAccount.balance) {
+      alert(`Saldo tidak mencukupi. Saldo tersedia: ${formatRupiah(selectedAccount.balance)}`);
       return;
     }
 
@@ -40,7 +50,7 @@ const ContributeModal: React.FC<ContributeModalProps> = ({ goal, onClose, onCont
 
     setLoading(true);
     try {
-      const success = await onContribute(goal.id, contributionAmount, description.trim());
+      const success = await onContribute(goal.id, contributionAmount, description.trim(), selectedAccountId || undefined);
       if (success) {
         onClose();
       } else {
@@ -63,7 +73,7 @@ const ContributeModal: React.FC<ContributeModalProps> = ({ goal, onClose, onCont
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Kontribusi Tabungan</h2>
           <button
@@ -96,6 +106,36 @@ const ContributeModal: React.FC<ContributeModalProps> = ({ goal, onClose, onCont
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Source Account Selection */}
+            {accounts.length > 0 && (
+              <div>
+                <label htmlFor="account" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Sumber Dana (Opsional)
+                </label>
+                <div className="relative">
+                  <CreditCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
+                  <select
+                    id="account"
+                    value={selectedAccountId}
+                    onChange={(e) => setSelectedAccountId(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="">Tidak menggunakan akun</option>
+                    {accounts.map((account) => (
+                      <option key={account.id} value={account.id}>
+                        {account.name} ({formatRupiah(account.balance)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {selectedAccount && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Saldo tersedia: {formatRupiah(selectedAccount.balance)}
+                  </p>
+                )}
+              </div>
+            )}
+
             <div>
               <label htmlFor="amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Jumlah Kontribusi (Rp)
@@ -148,6 +188,20 @@ const ContributeModal: React.FC<ContributeModalProps> = ({ goal, onClose, onCont
               />
             </div>
 
+            {/* Balance Warning */}
+            {selectedAccount && contributionAmount > selectedAccount.balance && (
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                <div className="flex items-start space-x-3">
+                  <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm text-red-800 dark:text-red-200">
+                    <p className="font-medium mb-1">Saldo Tidak Mencukupi</p>
+                    <p>Saldo akun {selectedAccount.name}: {formatRupiah(selectedAccount.balance)}</p>
+                    <p>Jumlah kontribusi: {formatRupiah(contributionAmount)}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Preview */}
             {amount && (
               <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
@@ -159,6 +213,9 @@ const ContributeModal: React.FC<ContributeModalProps> = ({ goal, onClose, onCont
                   <p>Jumlah: {formatRupiah(parseFloat(amount))}</p>
                   <p>Setelah kontribusi: {formatRupiah(goal.current_amount + parseFloat(amount))}</p>
                   <p>Progress: {((goal.current_amount + parseFloat(amount)) / goal.target_amount * 100).toFixed(1)}%</p>
+                  {selectedAccount && (
+                    <p>Saldo {selectedAccount.name} setelah kontribusi: {formatRupiah(selectedAccount.balance - parseFloat(amount))}</p>
+                  )}
                 </div>
               </div>
             )}
@@ -174,7 +231,7 @@ const ContributeModal: React.FC<ContributeModalProps> = ({ goal, onClose, onCont
               </button>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || (selectedAccount && contributionAmount > selectedAccount.balance)}
                 className="flex-1 px-4 py-2 text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? t('common.processing') : t('savings.contribute')}
