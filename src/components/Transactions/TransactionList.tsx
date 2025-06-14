@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTransactions } from '../../hooks/useTransactions';
 import { useTheme } from '../../contexts/ThemeContext';
-import { formatCurrency } from '../../utils/currency';
+import { formatRupiah } from '../../utils/currency';
 import { 
   Plus, 
   Search, 
@@ -10,7 +10,8 @@ import {
   ArrowUpCircle,
   ArrowDownCircle,
   Edit,
-  Trash2
+  Trash2,
+  CreditCard
 } from 'lucide-react';
 import AddTransactionModal from './AddTransactionModal';
 
@@ -180,7 +181,7 @@ const TransactionList: React.FC = () => {
                         ? 'text-green-600 dark:text-green-400' 
                         : 'text-red-600 dark:text-red-400'
                     }`}>
-                      {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                      {transaction.type === 'income' ? '+' : '-'}{formatRupiah(transaction.amount)}
                     </span>
                     <div className="flex items-center space-x-2">
                       <button
