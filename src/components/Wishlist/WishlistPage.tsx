@@ -10,7 +10,8 @@ import {
   Search,
   Clock,
   Target,
-  TrendingUp
+  TrendingUp,
+  RefreshCw
 } from 'lucide-react';
 import { useWishlist } from '../../hooks/useWishlist';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -38,6 +39,7 @@ const WishlistPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active');
   const [searchTerm, setSearchTerm] = useState('');
   const [urgencyFilter, setUrgencyFilter] = useState<'all' | 'low' | 'medium' | 'high'>('all');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Memoize computed values to prevent unnecessary recalculations
   const activeItems = useMemo(() => getActiveItems(), [wishlistItems]);
@@ -68,6 +70,17 @@ const WishlistPage: React.FC = () => {
     setSelectedItem(null);
   };
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await loadWishlistItems();
+    } catch (error) {
+      console.error('Error refreshing wishlist:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const selectedItemData = wishlistItems.find(item => item.id === selectedItem);
 
   if (loading) {
@@ -81,20 +94,30 @@ const WishlistPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Wishlist</h1>
           <p className="text-gray-600 dark:text-gray-400">
             Kelola keinginan Anda dan hindari pembelian impulsif
           </p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-lg hover:from-pink-700 hover:to-purple-700 transition-all duration-200"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Tambah Item</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-lg hover:from-pink-700 hover:to-purple-700 transition-all duration-200"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Tambah Item</span>
+          </button>
+        </div>
       </div>
 
       {/* Overview Cards */}

@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Budget } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import { supabase } from '../lib/supabase';
+import { logError } from '../utils/errorHandler';
 
 export const useBudgets = () => {
   const { user } = useAuth();
+  const { error: showError, success: showSuccess } = useToast();
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -26,13 +29,15 @@ export const useBudgets = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error loading budgets:', error);
+        logError(error, 'Loading budgets');
+        showError('Gagal memuat anggaran', 'Silakan refresh halaman');
         return;
       }
 
       setBudgets(data || []);
     } catch (error) {
-      console.error('Error loading budgets:', error);
+      logError(error, 'Loading budgets');
+      showError('Gagal memuat anggaran', 'Silakan refresh halaman');
     } finally {
       setLoading(false);
     }
@@ -54,13 +59,16 @@ export const useBudgets = () => {
         .single();
 
       if (error) {
-        console.error('Error adding budget:', error);
-        return;
+        logError(error, 'Adding budget');
+        throw error;
       }
 
+      // Immediate optimistic update
       setBudgets(prev => [data, ...prev]);
+      showSuccess('Anggaran berhasil ditambahkan', `Anggaran untuk kategori telah dibuat`);
     } catch (error) {
-      console.error('Error adding budget:', error);
+      logError(error, 'Adding budget');
+      throw error;
     }
   };
 
@@ -74,13 +82,17 @@ export const useBudgets = () => {
         .single();
 
       if (error) {
-        console.error('Error updating budget:', error);
+        logError(error, 'Updating budget');
+        showError('Gagal mengupdate anggaran', 'Silakan coba lagi');
         return;
       }
 
+      // Immediate optimistic update
       setBudgets(prev => prev.map(b => b.id === id ? data : b));
+      showSuccess('Anggaran berhasil diupdate', 'Perubahan telah disimpan');
     } catch (error) {
-      console.error('Error updating budget:', error);
+      logError(error, 'Updating budget');
+      showError('Gagal mengupdate anggaran', 'Silakan coba lagi');
     }
   };
 
@@ -92,13 +104,17 @@ export const useBudgets = () => {
         .eq('id', id);
 
       if (error) {
-        console.error('Error deleting budget:', error);
+        logError(error, 'Deleting budget');
+        showError('Gagal menghapus anggaran', 'Silakan coba lagi');
         return;
       }
 
+      // Immediate optimistic update
       setBudgets(prev => prev.filter(b => b.id !== id));
+      showSuccess('Anggaran berhasil dihapus', 'Anggaran telah dihapus');
     } catch (error) {
-      console.error('Error deleting budget:', error);
+      logError(error, 'Deleting budget');
+      showError('Gagal menghapus anggaran', 'Silakan coba lagi');
     }
   };
 
@@ -170,7 +186,7 @@ export const useBudgets = () => {
         loadBudgets();
       }
     } catch (error) {
-      console.error('Error checking/resetting budgets:', error);
+      logError(error, 'Checking/resetting budgets');
     }
   };
 
@@ -191,13 +207,13 @@ export const useBudgets = () => {
         .lte('date', end.toISOString().split('T')[0]);
 
       if (error) {
-        console.error('Error getting period spending:', error);
+        logError(error, 'Getting period spending');
         return 0;
       }
 
       return data?.reduce((sum, transaction) => sum + transaction.amount, 0) || 0;
     } catch (error) {
-      console.error('Error getting period spending:', error);
+      logError(error, 'Getting period spending');
       return 0;
     }
   };

@@ -1,16 +1,21 @@
 import React from 'react';
-import { User, Trash2, Download, Upload } from 'lucide-react';
+import { User, Trash2, Download, Upload, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useToast } from '../../contexts/ToastContext';
 import { supabase } from '../../lib/supabase';
 
 const Settings: React.FC = () => {
   const { user, logout } = useAuth();
   const { t } = useTheme();
+  const { error: showError, success: showSuccess } = useToast();
+  const [isExporting, setIsExporting] = React.useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
 
   const handleExportData = async () => {
     if (!user) return;
 
+    setIsExporting(true);
     try {
       // Ambil semua data pengguna dari Supabase
       const [transactionsResult, categoriesResult, budgetsResult] = await Promise.all([
@@ -34,9 +39,13 @@ const Settings: React.FC = () => {
       link.download = `data-keuangan-${new Date().toISOString().split('T')[0]}.json`;
       link.click();
       URL.revokeObjectURL(url);
+      
+      showSuccess('Data berhasil diekspor', 'File telah diunduh ke perangkat Anda');
     } catch (error) {
       console.error('Error exporting data:', error);
-      alert(t('settings.exportError'));
+      showError(t('settings.exportError'), 'Silakan coba lagi');
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -44,6 +53,7 @@ const Settings: React.FC = () => {
     if (!user) return;
 
     if (window.confirm(t('settings.deleteConfirm'))) {
+      setIsDeleting(true);
       try {
         // Hapus semua data pengguna dari Supabase
         await Promise.all([
@@ -52,20 +62,35 @@ const Settings: React.FC = () => {
           supabase.from('categories').delete().eq('user_id', user.id),
         ]);
 
-        alert(t('settings.dataDeleted'));
-        window.location.reload();
+        showSuccess(t('settings.dataDeleted'), 'Semua data telah dihapus');
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       } catch (error) {
         console.error('Error clearing data:', error);
-        alert(t('settings.deleteError'));
+        showError(t('settings.deleteError'), 'Silakan coba lagi');
+      } finally {
+        setIsDeleting(false);
       }
     }
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('settings.title')}</h1>
-        <p className="text-gray-600 dark:text-gray-400">{t('settings.subtitle')}</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('settings.title')}</h1>
+          <p className="text-gray-600 dark:text-gray-400">{t('settings.subtitle')}</p>
+        </div>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => window.location.reload()}
+            className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>Refresh</span>
+          </button>
+        </div>
       </div>
 
       {/* Account Information */}
@@ -122,10 +147,11 @@ const Settings: React.FC = () => {
             </div>
             <button
               onClick={handleExportData}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              disabled={isExporting}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Download className="w-4 h-4" />
-              <span>{t('settings.export')}</span>
+              <Download className={`w-4 h-4 ${isExporting ? 'animate-pulse' : ''}`} />
+              <span>{isExporting ? 'Mengekspor...' : t('settings.export')}</span>
             </button>
           </div>
         </div>
@@ -153,10 +179,11 @@ const Settings: React.FC = () => {
             </div>
             <button
               onClick={handleClearData}
-              className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              disabled={isDeleting}
+              className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Trash2 className="w-4 h-4" />
-              <span>{t('settings.deleteData')}</span>
+              <Trash2 className={`w-4 h-4 ${isDeleting ? 'animate-pulse' : ''}`} />
+              <span>{isDeleting ? 'Menghapus...' : t('settings.deleteData')}</span>
             </button>
           </div>
 

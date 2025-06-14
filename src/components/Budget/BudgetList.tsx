@@ -7,11 +7,12 @@ import { formatRupiah } from '../../utils/currency';
 import AddBudgetModal from './AddBudgetModal';
 
 const BudgetList: React.FC = () => {
-  const { budgets, addBudget, deleteBudget, checkAndResetBudgets, getCurrentPeriodDates } = useBudgets();
+  const { budgets, addBudget, deleteBudget, checkAndResetBudgets, getCurrentPeriodDates, loadBudgets } = useBudgets();
   const { transactions, categories } = useTransactions();
   const { t } = useTheme();
   const [showAddModal, setShowAddModal] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Check for budget resets on component mount and periodically
   useEffect(() => {
@@ -66,6 +67,17 @@ const BudgetList: React.FC = () => {
     setIsResetting(false);
   };
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await loadBudgets();
+    } catch (error) {
+      console.error('Error refreshing budgets:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'danger': return 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/20';
@@ -99,12 +111,20 @@ const BudgetList: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('budget.title')}</h1>
           <p className="text-gray-600 dark:text-gray-400">{t('budget.subtitle')}</p>
         </div>
         <div className="flex items-center space-x-3">
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </button>
           <button
             onClick={handleManualReset}
             disabled={isResetting}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Tag, Trash2, AlertTriangle, Target } from 'lucide-react';
+import { Plus, Tag, Trash2, AlertTriangle, Target, RefreshCw } from 'lucide-react';
 import { useTransactions } from '../../hooks/useTransactions';
 import { useTheme } from '../../contexts/ThemeContext';
 import { formatRupiah } from '../../utils/currency';
@@ -15,6 +15,7 @@ const CategoryList: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [deletingCategory, setDeletingCategory] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const filteredCategories = categories.filter(category => 
     filterType === 'all' || category.type === filterType
@@ -61,22 +62,43 @@ const CategoryList: React.FC = () => {
     }
   };
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await loadCategories();
+    } catch (error) {
+      console.error('Error refreshing categories:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const selectedCategoryData = categories.find(c => c.id === selectedCategory);
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('categories.title')}</h1>
           <p className="text-gray-600 dark:text-gray-400">{t('categories.subtitle')}</p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
-        >
-          <Plus className="w-4 h-4" />
-          <span>{t('categories.addCategory')}</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
+          >
+            <Plus className="w-4 h-4" />
+            <span>{t('categories.addCategory')}</span>
+          </button>
+        </div>
       </div>
 
       {/* Filter Tabs */}

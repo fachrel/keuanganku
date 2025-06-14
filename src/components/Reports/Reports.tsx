@@ -1,18 +1,19 @@
 import React, { useState, useMemo } from 'react';
-import { Calendar, PieChart, BarChart3, TrendingUp, Download } from 'lucide-react';
+import { Calendar, PieChart, BarChart3, TrendingUp, Download, RefreshCw } from 'lucide-react';
 import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { useTransactions } from '../../hooks/useTransactions';
 import { useTheme } from '../../contexts/ThemeContext';
 import { formatRupiah } from '../../utils/currency';
 
 const Reports: React.FC = () => {
-  const { transactions, categories } = useTransactions();
+  const { transactions, categories, loadTransactions } = useTransactions();
   const { t, theme } = useTheme();
   const [dateRange, setDateRange] = useState({
     startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0],
   });
   const [reportType, setReportType] = useState<'expense' | 'income'>('expense');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter(transaction => {
@@ -122,6 +123,17 @@ const Reports: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await loadTransactions();
+    } catch (error) {
+      console.error('Error refreshing reports:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const chartColors = {
     text: theme === 'dark' ? '#F3F4F6' : '#374151',
     grid: theme === 'dark' ? '#374151' : '#E5E7EB',
@@ -129,18 +141,28 @@ const Reports: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('reports.title')}</h1>
           <p className="text-gray-600 dark:text-gray-400">{t('reports.subtitle')}</p>
         </div>
-        <button
-          onClick={exportData}
-          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
-        >
-          <Download className="w-4 h-4" />
-          <span>{t('reports.exportData')}</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </button>
+          <button
+            onClick={exportData}
+            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
+          >
+            <Download className="w-4 h-4" />
+            <span>{t('reports.exportData')}</span>
+          </button>
+        </div>
       </div>
 
       {/* Filters */}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, PiggyBank, Target, Calendar, TrendingUp, CheckCircle, Clock } from 'lucide-react';
+import { Plus, PiggyBank, Target, Calendar, TrendingUp, CheckCircle, Clock, RefreshCw } from 'lucide-react';
 import { useSavingsGoals } from '../../hooks/useSavingsGoals';
 import { useTheme } from '../../contexts/ThemeContext';
 import { formatRupiah } from '../../utils/currency';
@@ -7,11 +7,12 @@ import AddGoalModal from './AddGoalModal';
 import ContributeModal from './ContributeModal';
 
 const SavingsGoals: React.FC = () => {
-  const { savingsGoals, addSavingsGoal, deleteSavingsGoal, contributeToGoal } = useSavingsGoals();
+  const { savingsGoals, addSavingsGoal, deleteSavingsGoal, contributeToGoal, loadSavingsGoals } = useSavingsGoals();
   const { t } = useTheme();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showContributeModal, setShowContributeModal] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleContribute = (goalId: string) => {
     setSelectedGoal(goalId);
@@ -21,6 +22,17 @@ const SavingsGoals: React.FC = () => {
   const handleDeleteGoal = (id: string, name: string) => {
     if (window.confirm(`${t('savings.deleteConfirm')} "${name}"? Tindakan ini tidak dapat dibatalkan.`)) {
       deleteSavingsGoal(id);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await loadSavingsGoals();
+    } catch (error) {
+      console.error('Error refreshing savings goals:', error);
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -48,18 +60,28 @@ const SavingsGoals: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('savings.title')}</h1>
           <p className="text-gray-600 dark:text-gray-400">{t('savings.subtitle')}</p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
-        >
-          <Plus className="w-4 h-4" />
-          <span>{t('savings.addGoal')}</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
+          >
+            <Plus className="w-4 h-4" />
+            <span>{t('savings.addGoal')}</span>
+          </button>
+        </div>
       </div>
 
       {/* Overview Cards */}

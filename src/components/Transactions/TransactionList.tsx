@@ -12,17 +12,19 @@ import {
   ArrowDownCircle,
   Edit,
   Trash2,
-  CreditCard
+  CreditCard,
+  RefreshCw
 } from 'lucide-react';
 import AddTransactionModal from './AddTransactionModal';
 
 const TransactionList: React.FC = () => {
-  const { transactions, loading, deleteTransaction } = useTransactions();
+  const { transactions, loading, deleteTransaction, loadTransactions } = useTransactions();
   const { t } = useTheme();
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'amount'>('date');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const filteredTransactions = transactions
     ?.filter((transaction: Transaction) => {
@@ -48,6 +50,17 @@ const TransactionList: React.FC = () => {
     }
   };
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await loadTransactions();
+    } catch (error) {
+      console.error('Error refreshing transactions:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -64,13 +77,23 @@ const TransactionList: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('transactions')}</h1>
           <p className="text-gray-600 dark:text-gray-400">{t('manage_transactions_description')}</p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          {t('add_transaction')}
-        </button>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="flex items-center space-x-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span>Refresh</span>
+          </button>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            {t('add_transaction')}
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
