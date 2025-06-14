@@ -3,20 +3,22 @@ import { Plus, PiggyBank, Target, Calendar, TrendingUp, CheckCircle, Clock, Refr
 import { useSavingsGoals } from '../../hooks/useSavingsGoals';
 import { useTheme } from '../../contexts/ThemeContext';
 import { formatRupiah } from '../../utils/currency';
-import AddGoalModal from './AddGoalModal';
-import ContributeModal from './ContributeModal';
+import { useModal } from '../Layout/ModalProvider';
 
 const SavingsGoals: React.FC = () => {
   const { savingsGoals, addSavingsGoal, deleteSavingsGoal, contributeToGoal, loadSavingsGoals } = useSavingsGoals();
   const { t } = useTheme();
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showContributeModal, setShowContributeModal] = useState(false);
-  const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
+  const { openModal } = useModal();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleContribute = (goalId: string) => {
-    setSelectedGoal(goalId);
-    setShowContributeModal(true);
+    const goal = savingsGoals.find(g => g.id === goalId);
+    if (goal) {
+      openModal('contributeGoal', {
+        goal,
+        onContribute: contributeToGoal
+      });
+    }
   };
 
   const handleDeleteGoal = (id: string, name: string) => {
@@ -34,6 +36,10 @@ const SavingsGoals: React.FC = () => {
     } finally {
       setIsRefreshing(false);
     }
+  };
+
+  const handleAddGoal = () => {
+    openModal('addGoal', { onAddGoal: addSavingsGoal });
   };
 
   const activeGoals = savingsGoals.filter(goal => !goal.is_completed);
@@ -75,7 +81,7 @@ const SavingsGoals: React.FC = () => {
             <span>Refresh</span>
           </button>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={handleAddGoal}
             className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
           >
             <Plus className="w-4 h-4" />
@@ -287,32 +293,13 @@ const SavingsGoals: React.FC = () => {
             {t('savings.noGoalsDesc')}
           </p>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={handleAddGoal}
             className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
           >
             <Plus className="w-5 h-5" />
             <span>{t('savings.createFirst')}</span>
           </button>
         </div>
-      )}
-
-      {/* Modals */}
-      {showAddModal && (
-        <AddGoalModal
-          onClose={() => setShowAddModal(false)}
-          onAddGoal={addSavingsGoal}
-        />
-      )}
-
-      {showContributeModal && selectedGoal && (
-        <ContributeModal
-          goal={savingsGoals.find(g => g.id === selectedGoal)!}
-          onClose={() => {
-            setShowContributeModal(false);
-            setSelectedGoal(null);
-          }}
-          onContribute={contributeToGoal}
-        />
       )}
     </div>
   );

@@ -4,20 +4,15 @@ import { useAccounts } from '../../hooks/useAccounts';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useToast } from '../../contexts/ToastContext';
 import { formatRupiah, formatNumber } from '../../utils/currency';
-import AddAccountModal from './AddAccountModal';
-import EditAccountModal from './EditAccountModal';
-import TransferModal from './TransferModal';
 import TransferHistory from './TransferHistory';
+import { useModal } from '../Layout/ModalProvider';
 
 const AccountList: React.FC = () => {
   const { accounts, deleteAccount, getTotalBalance, loadAccounts } = useAccounts();
   const { t } = useTheme();
   const { error: showError, success: showSuccess } = useToast();
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showTransferModal, setShowTransferModal] = useState(false);
+  const { openModal } = useModal();
   const [showTransferHistory, setShowTransferHistory] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const getIconComponent = (iconName: string) => {
@@ -53,8 +48,10 @@ const AccountList: React.FC = () => {
   };
 
   const handleEditAccount = (accountId: string) => {
-    setSelectedAccount(accountId);
-    setShowEditModal(true);
+    const accountToEdit = accounts.find(a => a.id === accountId);
+    if (accountToEdit) {
+      openModal('editAccount', accountToEdit);
+    }
   };
 
   const handleRefresh = async () => {
@@ -69,8 +66,6 @@ const AccountList: React.FC = () => {
       setIsRefreshing(false);
     }
   };
-
-  const selectedAccountData = accounts.find(a => a.id === selectedAccount);
 
   // Format account count for display
   const formatAccountCount = (count: number) => {
@@ -106,7 +101,7 @@ const AccountList: React.FC = () => {
                 <span>Riwayat Transfer</span>
               </button>
               <button
-                onClick={() => setShowTransferModal(true)}
+                onClick={() => openModal('transfer', accounts)}
                 className="flex items-center justify-center space-x-2 px-4 py-2 text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors"
               >
                 <ArrowRightLeft className="w-4 h-4" />
@@ -115,7 +110,7 @@ const AccountList: React.FC = () => {
             </>
           )}
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => openModal('addAccount')}
             className="flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
           >
             <Plus className="w-4 h-4" />
@@ -222,40 +217,13 @@ const AccountList: React.FC = () => {
             {t('accounts.noAccountsDesc')}
           </p>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => openModal('addAccount')}
             className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
           >
             <Plus className="w-5 h-5" />
             <span>{t('accounts.addFirstAccount')}</span>
           </button>
         </div>
-      )}
-
-      {/* Modals */}
-      {showAddModal && (
-        <AddAccountModal
-          isOpen={showAddModal}
-          onClose={() => setShowAddModal(false)}
-        />
-      )}
-
-      {showEditModal && selectedAccountData && (
-        <EditAccountModal
-          isOpen={showEditModal}
-          account={selectedAccountData}
-          onClose={() => {
-            setShowEditModal(false);
-            setSelectedAccount(null);
-          }}
-        />
-      )}
-
-      {showTransferModal && (
-        <TransferModal
-          isOpen={showTransferModal}
-          accounts={accounts}
-          onClose={() => setShowTransferModal(false)}
-        />
       )}
     </div>
   );

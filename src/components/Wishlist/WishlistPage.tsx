@@ -16,9 +16,8 @@ import {
 import { useWishlist } from '../../hooks/useWishlist';
 import { useTheme } from '../../contexts/ThemeContext';
 import { formatRupiah } from '../../utils/currency';
-import AddWishlistModal from './AddWishlistModal';
 import WishlistItemCard from './WishlistItemCard';
-import EditWishlistModal from './EditWishlistModal';
+import { useModal } from '../Layout/ModalProvider';
 
 const WishlistPage: React.FC = () => {
   const { 
@@ -33,9 +32,7 @@ const WishlistPage: React.FC = () => {
     loadWishlistItems
   } = useWishlist();
   const { t } = useTheme();
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const { openModal } = useModal();
   const [activeTab, setActiveTab] = useState<'active' | 'archived'>('active');
   const [searchTerm, setSearchTerm] = useState('');
   const [urgencyFilter, setUrgencyFilter] = useState<'all' | 'low' | 'medium' | 'high'>('all');
@@ -60,14 +57,10 @@ const WishlistPage: React.FC = () => {
   }, [activeItems, archivedItems, activeTab, searchTerm, urgencyFilter]);
 
   const handleEditItem = (itemId: string) => {
-    setSelectedItem(itemId);
-    setShowEditModal(true);
-    loadWishlistItems();
-  };
-
-  const handleCloseEditModal = () => {
-    setShowEditModal(false);
-    setSelectedItem(null);
+    const itemToEdit = wishlistItems.find(item => item.id === itemId);
+    if (itemToEdit) {
+      openModal('editWishlist', itemToEdit);
+    }
   };
 
   const handleRefresh = async () => {
@@ -80,8 +73,6 @@ const WishlistPage: React.FC = () => {
       setIsRefreshing(false);
     }
   };
-
-  const selectedItemData = wishlistItems.find(item => item.id === selectedItem);
 
   if (loading) {
     return (
@@ -111,7 +102,7 @@ const WishlistPage: React.FC = () => {
             <span>Refresh</span>
           </button>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => openModal('addWishlist')}
             className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-lg hover:from-pink-700 hover:to-purple-700 transition-all duration-200"
           >
             <Plus className="w-4 h-4" />
@@ -294,7 +285,7 @@ const WishlistPage: React.FC = () => {
               </p>
               {activeTab === 'active' && (
                 <button
-                  onClick={() => setShowAddModal(true)}
+                  onClick={() => openModal('addWishlist')}
                   className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-lg hover:from-pink-700 hover:to-purple-700 transition-all duration-200"
                 >
                   <Plus className="w-4 h-4" />
@@ -325,22 +316,6 @@ const WishlistPage: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
-
-      {/* Modals */}
-      {showAddModal && (
-        <AddWishlistModal
-          isOpen={showAddModal}
-          onClose={() => setShowAddModal(false)}
-        />
-      )}
-
-      {showEditModal && selectedItemData && (
-        <EditWishlistModal
-          isOpen={showEditModal}
-          item={selectedItemData}
-          onClose={handleCloseEditModal}
-        />
       )}
     </div>
   );

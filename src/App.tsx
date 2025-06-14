@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -16,17 +16,21 @@ import Reports from './components/Reports/Reports';
 import Settings from './components/Settings/Settings';
 import AccountList from './components/Accounts/AccountList';
 
-// Add global styles to fix modal backdrop issues
+// Add global styles for modal handling
 const GlobalStyles = () => {
-  React.useEffect(() => {
+  useEffect(() => {
     // Add a style tag to handle modal backdrops
     const styleTag = document.createElement('style');
     styleTag.innerHTML = `
       .modal-open {
         overflow: hidden;
-        position: fixed;
-        width: 100%;
-        height: 100%;
+      }
+      
+      @media (max-width: 640px) {
+        .modal-open {
+          position: fixed;
+          width: 100%;
+        }
       }
     `;
     document.head.appendChild(styleTag);

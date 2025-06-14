@@ -4,13 +4,13 @@ import { useBudgets } from '../../hooks/useBudgets';
 import { useTransactions } from '../../hooks/useTransactions';
 import { useTheme } from '../../contexts/ThemeContext';
 import { formatRupiah } from '../../utils/currency';
-import AddBudgetModal from './AddBudgetModal';
+import { useModal } from '../Layout/ModalProvider';
 
 const BudgetList: React.FC = () => {
   const { budgets, addBudget, deleteBudget, checkAndResetBudgets, getCurrentPeriodDates, loadBudgets } = useBudgets();
   const { transactions, categories } = useTransactions();
   const { t } = useTheme();
-  const [showAddModal, setShowAddModal] = useState(false);
+  const { openModal } = useModal();
   const [isResetting, setIsResetting] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -78,6 +78,13 @@ const BudgetList: React.FC = () => {
     }
   };
 
+  const handleAddBudget = () => {
+    openModal('addBudget', {
+      categories: categories.filter(c => c.type === 'expense'),
+      onAddBudget: addBudget
+    });
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'danger': return 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/20';
@@ -135,7 +142,7 @@ const BudgetList: React.FC = () => {
             <span>Reset Periode</span>
           </button>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={handleAddBudget}
             className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
           >
             <Plus className="w-4 h-4" />
@@ -289,21 +296,13 @@ const BudgetList: React.FC = () => {
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('budget.noBudgets')}</h3>
           <p className="text-gray-500 dark:text-gray-400 mb-4">{t('budget.noBudgetsDesc')}</p>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={handleAddBudget}
             className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
           >
             <Plus className="w-4 h-4" />
             <span>{t('budget.createFirst')}</span>
           </button>
         </div>
-      )}
-
-      {showAddModal && (
-        <AddBudgetModal
-          categories={categories.filter(c => c.type === 'expense')}
-          onClose={() => setShowAddModal(false)}
-          onAddBudget={addBudget}
-        />
       )}
     </div>
   );

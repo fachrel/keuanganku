@@ -16,14 +16,12 @@ import {
   RefreshCw,
   Camera
 } from 'lucide-react';
-import AddTransactionModal from './AddTransactionModal';
-import OCRTransactionModal from './OCRTransactionModal';
+import { useModal } from '../Layout/ModalProvider';
 
 const TransactionList: React.FC = () => {
   const { transactions, loading, deleteTransaction, loadTransactions } = useTransactions();
   const { t } = useTheme();
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showOCRModal, setShowOCRModal] = useState(false);
+  const { openModal } = useModal();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'amount'>('date');
@@ -90,7 +88,7 @@ const TransactionList: React.FC = () => {
             <span>Refresh</span>
           </button>
           <button
-            onClick={() => setShowOCRModal(true)}
+            onClick={() => openModal('ocrTransaction')}
             className="flex items-center justify-center space-x-2 px-4 py-2 text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg transition-all duration-200"
           >
             <Camera className="w-4 h-4" />
@@ -98,7 +96,7 @@ const TransactionList: React.FC = () => {
             <span className="sm:hidden">Scan</span>
           </button>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => openModal('addTransaction')}
             className="flex items-center justify-center space-x-2 px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
             <Plus className="w-4 h-4" />
@@ -249,14 +247,14 @@ const TransactionList: React.FC = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button
-                onClick={() => setShowOCRModal(true)}
+                onClick={() => openModal('ocrTransaction')}
                 className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
               >
                 <Camera className="w-4 h-4 mr-2" />
                 Scan Receipt
               </button>
               <button
-                onClick={() => setShowAddModal(true)}
+                onClick={() => openModal('addTransaction')}
                 className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -266,21 +264,6 @@ const TransactionList: React.FC = () => {
           </div>
         )}
       </div>
-
-      {/* Modals */}
-      {showAddModal && (
-        <AddTransactionModal
-          isOpen={showAddModal}
-          onClose={() => setShowAddModal(false)}
-        />
-      )}
-
-      {showOCRModal && (
-        <OCRTransactionModal
-          isOpen={showOCRModal}
-          onClose={() => setShowOCRModal(false)}
-        />
-      )}
     </div>
   );
 };

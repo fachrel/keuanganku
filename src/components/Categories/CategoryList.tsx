@@ -4,15 +4,12 @@ import { useTransactions } from '../../hooks/useTransactions';
 import { useTheme } from '../../contexts/ThemeContext';
 import { formatRupiah } from '../../utils/currency';
 import { supabase } from '../../lib/supabase';
-import AddCategoryModal from './AddCategoryModal';
-import CategoryBudgetModal from './CategoryBudgetModal';
+import { useModal } from '../Layout/ModalProvider';
 
 const CategoryList: React.FC = () => {
   const { categories, addCategory, deleteCategory, loadCategories } = useTransactions();
   const { t } = useTheme();
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showBudgetModal, setShowBudgetModal] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const { openModal } = useModal();
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [deletingCategory, setDeletingCategory] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -29,16 +26,14 @@ const CategoryList: React.FC = () => {
       setDeletingCategory(id);
       const success = await deleteCategory(id);
       setDeletingCategory(null);
-      
-      if (success) {
-        // Category deleted successfully
-      }
     }
   };
 
-  const handleSetBudget = (categoryId: string) => {
-    setSelectedCategory(categoryId);
-    setShowBudgetModal(true);
+  const handleSetBudget = (category: any) => {
+    openModal('categoryBudget', {
+      category,
+      onUpdateBudget: handleUpdateBudget
+    });
   };
 
   const handleUpdateBudget = async (categoryId: string, amount: number): Promise<boolean> => {
@@ -73,7 +68,9 @@ const CategoryList: React.FC = () => {
     }
   };
 
-  const selectedCategoryData = categories.find(c => c.id === selectedCategory);
+  const handleAddCategory = () => {
+    openModal('addCategory', { onAddCategory: addCategory });
+  };
 
   return (
     <div className="space-y-6">
@@ -92,7 +89,7 @@ const CategoryList: React.FC = () => {
             <span>Refresh</span>
           </button>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={handleAddCategory}
             className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
           >
             <Plus className="w-4 h-4" />
@@ -204,7 +201,7 @@ const CategoryList: React.FC = () => {
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('categories.defaultBudget')}</span>
                     <button
-                      onClick={() => handleSetBudget(category.id)}
+                      onClick={() => handleSetBudget(category)}
                       className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
                     >
                       {category.default_budget_amount ? t('categories.editBudget') : t('categories.setBudget')}
@@ -234,7 +231,7 @@ const CategoryList: React.FC = () => {
               : `Anda belum membuat kategori ${filterType === 'income' ? t('categories.income').toLowerCase() : t('categories.expense').toLowerCase()}.`}
           </p>
           <button
-            onClick={() => setShowAddModal(true)}
+            onClick={handleAddCategory}
             className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200"
           >
             <Plus className="w-4 h-4" />
@@ -254,25 +251,6 @@ const CategoryList: React.FC = () => {
             </div>
           </div>
         </div>
-      )}
-
-      {/* Modals */}
-      {showAddModal && (
-        <AddCategoryModal
-          onClose={() => setShowAddModal(false)}
-          onAddCategory={addCategory}
-        />
-      )}
-
-      {showBudgetModal && selectedCategoryData && (
-        <CategoryBudgetModal
-          category={selectedCategoryData}
-          onClose={() => {
-            setShowBudgetModal(false);
-            setSelectedCategory(null);
-          }}
-          onUpdateBudget={handleUpdateBudget}
-        />
       )}
     </div>
   );
