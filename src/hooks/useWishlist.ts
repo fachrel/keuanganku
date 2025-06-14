@@ -63,14 +63,9 @@ export const useWishlist = () => {
         throw error;
       }
 
-      // Optimistic update
+      // Immediate optimistic update
       setWishlistItems(prev => [data, ...prev]);
       showSuccess('Item berhasil ditambahkan', `${data.name} telah ditambahkan ke wishlist`);
-      
-      // Reload to ensure consistency
-      setTimeout(() => {
-        loadWishlistItems();
-      }, 500);
 
     } catch (error) {
       logError(error, 'Adding wishlist item');
@@ -93,14 +88,9 @@ export const useWishlist = () => {
         return;
       }
 
-      // Optimistic update
+      // Immediate optimistic update
       setWishlistItems(prev => prev.map(item => item.id === id ? data : item));
       showSuccess('Item berhasil diupdate', 'Perubahan telah disimpan');
-      
-      // Reload to ensure consistency
-      setTimeout(() => {
-        loadWishlistItems();
-      }, 500);
 
     } catch (error) {
       logError(error, 'Updating wishlist item');
@@ -121,14 +111,9 @@ export const useWishlist = () => {
         return;
       }
 
-      // Optimistic update
+      // Immediate optimistic update
       setWishlistItems(prev => prev.filter(item => item.id !== id));
       showSuccess('Item berhasil dihapus', 'Item telah dihapus dari wishlist');
-      
-      // Reload to ensure consistency
-      setTimeout(() => {
-        loadWishlistItems();
-      }, 500);
 
     } catch (error) {
       logError(error, 'Deleting wishlist item');
@@ -151,7 +136,7 @@ export const useWishlist = () => {
         return;
       }
 
-      // Optimistic update
+      // Immediate optimistic update
       setWishlistItems(prev => prev.map(item => item.id === id ? data : item));
       showSuccess(
         archived ? 'Item berhasil diarsipkan' : 'Item berhasil dikembalikan',

@@ -91,10 +91,13 @@ const WishlistItemCard: React.FC<WishlistItemCardProps> = ({ item, onEdit }) => 
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.style.display = 'none';
-              target.nextElementSibling?.classList.remove('hidden');
+              const fallback = target.parentElement?.querySelector('.fallback-image') as HTMLElement;
+              if (fallback) {
+                fallback.style.display = 'flex';
+              }
             }}
           />
-          <div className="hidden w-full h-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+          <div className="fallback-image hidden w-full h-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
             <ImageIcon className="w-12 h-12 text-gray-400" />
           </div>
         </div>

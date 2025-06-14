@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Plus, 
   Heart, 
@@ -22,6 +22,7 @@ import EditWishlistModal from './EditWishlistModal';
 const WishlistPage: React.FC = () => {
   const { 
     wishlistItems, 
+    loading,
     getActiveItems, 
     getArchivedItems, 
     getTotalCost, 
@@ -37,43 +38,43 @@ const WishlistPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [urgencyFilter, setUrgencyFilter] = useState<'all' | 'low' | 'medium' | 'high'>('all');
 
-  const activeItems = getActiveItems();
-  const archivedItems = getArchivedItems();
-  const overdueItems = getOverdueItems();
-  const upcomingItems = getUpcomingItems();
+  // Memoize computed values to prevent unnecessary recalculations
+  const activeItems = useMemo(() => getActiveItems(), [wishlistItems]);
+  const archivedItems = useMemo(() => getArchivedItems(), [wishlistItems]);
+  const overdueItems = useMemo(() => getOverdueItems(), [wishlistItems]);
+  const upcomingItems = useMemo(() => getUpcomingItems(), [wishlistItems]);
+  const totalCost = useMemo(() => getTotalCost(), [wishlistItems]);
+  const highPriorityItems = useMemo(() => getItemsByUrgency('high'), [wishlistItems]);
 
-  const filteredItems = (activeTab === 'active' ? activeItems : archivedItems)
-    .filter(item => {
+  const filteredItems = useMemo(() => {
+    const items = activeTab === 'active' ? activeItems : archivedItems;
+    return items.filter(item => {
       const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            item.description?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesUrgency = urgencyFilter === 'all' || item.urgency === urgencyFilter;
       return matchesSearch && matchesUrgency;
     });
+  }, [activeItems, archivedItems, activeTab, searchTerm, urgencyFilter]);
 
   const handleEditItem = (itemId: string) => {
     setSelectedItem(itemId);
     setShowEditModal(true);
   };
 
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setSelectedItem(null);
+  };
+
   const selectedItemData = wishlistItems.find(item => item.id === selectedItem);
 
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case 'high': return 'text-red-600 bg-red-100 dark:bg-red-900/20 dark:text-red-400';
-      case 'medium': return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400';
-      case 'low': return 'text-green-600 bg-green-100 dark:bg-green-900/20 dark:text-green-400';
-      default: return 'text-gray-600 bg-gray-100 dark:bg-gray-700 dark:text-gray-400';
-    }
-  };
-
-  const getUrgencyLabel = (urgency: string) => {
-    switch (urgency) {
-      case 'high': return 'Tinggi';
-      case 'medium': return 'Sedang';
-      case 'low': return 'Rendah';
-      default: return urgency;
-    }
-  };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -113,7 +114,7 @@ const WishlistPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Biaya</p>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{formatRupiah(getTotalCost())}</p>
+                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{formatRupiah(totalCost)}</p>
               </div>
               <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
                 <DollarSign className="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -126,7 +127,7 @@ const WishlistPage: React.FC = () => {
               <div>
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Prioritas Tinggi</p>
                 <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                  {getItemsByUrgency('high').length}
+                  {highPriorityItems.length}
                 </p>
               </div>
               <div className="w-12 h-12 bg-red-100 dark:bg-red-900/20 rounded-lg flex items-center justify-center">
@@ -313,10 +314,7 @@ const WishlistPage: React.FC = () => {
         <EditWishlistModal
           isOpen={showEditModal}
           item={selectedItemData}
-          onClose={() => {
-            setShowEditModal(false);
-            setSelectedItem(null);
-          }}
+          onClose={handleCloseEditModal}
         />
       )}
     </div>
