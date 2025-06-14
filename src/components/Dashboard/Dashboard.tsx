@@ -401,145 +401,6 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Enhanced Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Expenses by Category Pie Chart */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.expensesByCategory')}</h3>
-          {expensesByCategory.length > 0 ? (
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={expensesByCategory}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
-                  >
-                    {expensesByCategory.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value: number) => formatRupiah(value)} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          ) : (
-            <div className="h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
-              No expense data available
-            </div>
-          )}
-        </div>
-
-        {/* Monthly Trend Chart */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.monthlyTrend')}</h3>
-          {monthlyTrendData.length > 0 ? (
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={monthlyTrendData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
-                  <XAxis dataKey="month" stroke={chartColors.text} />
-                  <YAxis tickFormatter={(value) => formatRupiah(value)} stroke={chartColors.text} />
-                  <Tooltip 
-                    formatter={(value: number, name: string) => [formatRupiah(value), name === 'income' ? t('dashboard.income') : name === 'expenses' ? t('dashboard.expenses') : 'Net']}
-                    labelStyle={{ color: chartColors.text }}
-                    contentStyle={{ 
-                      backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
-                      border: `1px solid ${theme === 'dark' ? '#4B5563' : '#E5E7EB'}`,
-                      borderRadius: '8px'
-                    }}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="income" 
-                    stackId="1"
-                    stroke={chartColors.success} 
-                    fill={chartColors.success}
-                    fillOpacity={0.6}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="expenses" 
-                    stackId="2"
-                    stroke={chartColors.danger} 
-                    fill={chartColors.danger}
-                    fillOpacity={0.6}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          ) : (
-            <div className="h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
-              No trend data available
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Income vs Expenses Comparison */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.incomeVsExpenses')}</h3>
-        {monthlyTrendData.length > 0 ? (
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyTrendData}>
-                <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
-                <XAxis dataKey="month" stroke={chartColors.text} />
-                <YAxis tickFormatter={(value) => formatRupiah(value)} stroke={chartColors.text} />
-                <Tooltip 
-                  formatter={(value: number, name: string) => [formatRupiah(value), name === 'income' ? t('dashboard.income') : t('dashboard.expenses')]}
-                  labelStyle={{ color: chartColors.text }}
-                  contentStyle={{ 
-                    backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
-                    border: `1px solid ${theme === 'dark' ? '#4B5563' : '#E5E7EB'}`,
-                    borderRadius: '8px'
-                  }}
-                />
-                <Bar dataKey="income" fill={chartColors.success} radius={[4, 4, 0, 0]} />
-                <Bar dataKey="expenses" fill={chartColors.danger} radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        ) : (
-          <div className="h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
-            No comparison data available
-          </div>
-        )}
-      </div>
-
-      {/* Cash Flow Card */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold mb-2">{t('dashboard.cashFlow')}</h3>
-            <div className="grid grid-cols-3 gap-6">
-              <div>
-                <p className="text-blue-100 text-sm">{t('dashboard.income')}</p>
-                <p className="text-2xl font-bold">{formatRupiah(stats.totalIncome)}</p>
-              </div>
-              <div>
-                <p className="text-blue-100 text-sm">{t('dashboard.expenses')}</p>
-                <p className="text-2xl font-bold">{formatRupiah(stats.totalExpenses)}</p>
-              </div>
-              <div>
-                <p className="text-blue-100 text-sm">{t('dashboard.netCashFlow')}</p>
-                <p className={`text-2xl font-bold ${stats.cashFlow >= 0 ? 'text-green-200' : 'text-red-200'}`}>
-                  {formatRupiah(stats.cashFlow)}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="text-right">
-            <div className="w-16 h-16 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-              <CreditCard className="w-8 h-8" />
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Budget Status */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
@@ -688,6 +549,115 @@ const Dashboard: React.FC = () => {
             <p className="text-gray-500 dark:text-gray-400 text-center py-8">{t('dashboard.noTransactions')}</p>
           )}
         </div>
+      </div>
+
+      {/* Enhanced Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Expenses by Category Pie Chart */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.expensesByCategory')}</h3>
+          {expensesByCategory.length > 0 ? (
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={expensesByCategory}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                  >
+                    {expensesByCategory.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value: number) => formatRupiah(value)} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
+              No expense data available
+            </div>
+          )}
+        </div>
+
+        {/* Monthly Trend Chart */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.monthlyTrend')}</h3>
+          {monthlyTrendData.length > 0 ? (
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={monthlyTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+                  <XAxis dataKey="month" stroke={chartColors.text} />
+                  <YAxis tickFormatter={(value) => formatRupiah(value)} stroke={chartColors.text} />
+                  <Tooltip 
+                    formatter={(value: number, name: string) => [formatRupiah(value), name === 'income' ? t('dashboard.income') : name === 'expenses' ? t('dashboard.expenses') : 'Net']}
+                    labelStyle={{ color: chartColors.text }}
+                    contentStyle={{ 
+                      backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                      border: `1px solid ${theme === 'dark' ? '#4B5563' : '#E5E7EB'}`,
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="income" 
+                    stackId="1"
+                    stroke={chartColors.success} 
+                    fill={chartColors.success}
+                    fillOpacity={0.6}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="expenses" 
+                    stackId="2"
+                    stroke={chartColors.danger} 
+                    fill={chartColors.danger}
+                    fillOpacity={0.6}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
+              No trend data available
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Income vs Expenses Comparison */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{t('dashboard.incomeVsExpenses')}</h3>
+        {monthlyTrendData.length > 0 ? (
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={monthlyTrendData}>
+                <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
+                <XAxis dataKey="month" stroke={chartColors.text} />
+                <YAxis tickFormatter={(value) => formatRupiah(value)} stroke={chartColors.text} />
+                <Tooltip 
+                  formatter={(value: number, name: string) => [formatRupiah(value), name === 'income' ? t('dashboard.income') : t('dashboard.expenses')]}
+                  labelStyle={{ color: chartColors.text }}
+                  contentStyle={{ 
+                    backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                    border: `1px solid ${theme === 'dark' ? '#4B5563' : '#E5E7EB'}`,
+                    borderRadius: '8px'
+                  }}
+                />
+                <Bar dataKey="income" fill={chartColors.success} radius={[4, 4, 0, 0]} />
+                <Bar dataKey="expenses" fill={chartColors.danger} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <div className="h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
+            No comparison data available
+          </div>
+        )}
       </div>
     </div>
   );

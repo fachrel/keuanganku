@@ -28,7 +28,8 @@ const WishlistPage: React.FC = () => {
     getTotalCost, 
     getItemsByUrgency,
     getOverdueItems,
-    getUpcomingItems
+    getUpcomingItems,
+    loadWishlistItems
   } = useWishlist();
   const { t } = useTheme();
   const [showAddModal, setShowAddModal] = useState(false);
@@ -59,6 +60,7 @@ const WishlistPage: React.FC = () => {
   const handleEditItem = (itemId: string) => {
     setSelectedItem(itemId);
     setShowEditModal(true);
+    loadWishlistItems();
   };
 
   const handleCloseEditModal = () => {

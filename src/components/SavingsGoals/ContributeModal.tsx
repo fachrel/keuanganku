@@ -103,7 +103,6 @@ const ContributeModal: React.FC<ContributeModalProps> = ({ goal, onClose, onCont
               <input
                 type="number"
                 id="amount"
-                step="1000"
                 min="1"
                 required
                 value={amount}
