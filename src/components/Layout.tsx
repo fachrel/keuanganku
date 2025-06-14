@@ -1,4 +1,5 @@
 import React, { ReactNode, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Home, 
   CreditCard, 
@@ -22,27 +23,36 @@ import { useTheme } from '../contexts/ThemeContext';
 
 interface LayoutProps {
   children: ReactNode;
-  currentPage: string;
-  onPageChange: (page: string) => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, currentPage, onPageChange }) => {
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, logout } = useAuth();
   const { theme, language, toggleTheme, setLanguage, t } = useTheme();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
 
   const navigation = [
-    { name: t('nav.dashboard'), icon: Home, id: 'dashboard' },
-    { name: t('nav.transactions'), icon: CreditCard, id: 'transactions' },
-    { name: t('nav.accounts'), icon: Wallet, id: 'accounts' },
-    { name: t('nav.categories'), icon: PieChart, id: 'categories' },
-    { name: t('nav.budgets'), icon: Target, id: 'budgets' },
-    { name: t('nav.savings'), icon: PiggyBank, id: 'savings' },
-    { name: t('nav.wishlist'), icon: Heart, id: 'wishlist' },
-    { name: t('nav.reports'), icon: BarChart3, id: 'reports' },
-    { name: t('nav.settings'), icon: Settings, id: 'settings' },
+    { name: t('nav.dashboard'), icon: Home, path: '/dashboard' },
+    { name: t('nav.transactions'), icon: CreditCard, path: '/transactions' },
+    { name: t('nav.accounts'), icon: Wallet, path: '/accounts' },
+    { name: t('nav.categories'), icon: PieChart, path: '/categories' },
+    { name: t('nav.budgets'), icon: Target, path: '/budgets' },
+    { name: t('nav.savings'), icon: PiggyBank, path: '/savings' },
+    { name: t('nav.wishlist'), icon: Heart, path: '/wishlist' },
+    { name: t('nav.reports'), icon: BarChart3, path: '/reports' },
+    { name: t('nav.settings'), icon: Settings, path: '/settings' },
   ];
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setSidebarOpen(false);
+  };
+
+  const isCurrentPath = (path: string) => {
+    return location.pathname === path;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-200">
@@ -66,14 +76,11 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage, onPageChange }) 
               {navigation.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <li key={item.id}>
+                  <li key={item.path}>
                     <button
-                      onClick={() => {
-                        onPageChange(item.id);
-                        setSidebarOpen(false);
-                      }}
+                      onClick={() => handleNavigation(item.path)}
                       className={`w-full flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                        currentPage === item.id
+                        isCurrentPath(item.path)
                           ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
@@ -117,11 +124,11 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage, onPageChange }) 
             {navigation.map((item) => {
               const Icon = item.icon;
               return (
-                <li key={item.id}>
+                <li key={item.path}>
                   <button
-                    onClick={() => onPageChange(item.id)}
+                    onClick={() => handleNavigation(item.path)}
                     className={`w-full flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                      currentPage === item.id
+                      isCurrentPath(item.path)
                         ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User, AuthContextType } from '../types';
 import { supabase } from '../lib/supabase';
 import { getErrorDetails, logError, errorCodes } from '../utils/errorHandler';
@@ -162,6 +163,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await supabase.auth.signOut();
       setUser(null);
       showSuccess('Berhasil keluar', 'Sampai jumpa lagi!');
+      // Navigation will be handled by the auth state change
     } catch (error) {
       const errorDetails = getErrorDetails(error);
       logError(error, 'Logout error');

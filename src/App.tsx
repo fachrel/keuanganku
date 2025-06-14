@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { ToastProvider } from './contexts/ToastContext';
@@ -25,9 +26,8 @@ const AuthScreen: React.FC = () => {
   );
 };
 
-const MainApp: React.FC = () => {
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
-  const [currentPage, setCurrentPage] = useState('dashboard');
 
   if (loading) {
     return (
@@ -41,35 +41,35 @@ const MainApp: React.FC = () => {
     return <AuthScreen />;
   }
 
-  const renderCurrentPage = () => {
-    switch (currentPage) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'transactions':
-        return <TransactionList />;
-      case 'accounts':
-        return <AccountList />;
-      case 'categories':
-        return <CategoryList />;
-      case 'budgets':
-        return <BudgetList />;
-      case 'savings':
-        return <SavingsGoals />;
-      case 'wishlist':
-        return <WishlistPage />;
-      case 'reports':
-        return <Reports />;
-      case 'settings':
-        return <Settings />;
-      default:
-        return <Dashboard />;
-    }
-  };
+  return <>{children}</>;
+};
 
+const MainApp: React.FC = () => {
   return (
-    <Layout currentPage={currentPage} onPageChange={setCurrentPage}>
-      {renderCurrentPage()}
-    </Layout>
+    <Router>
+      <Routes>
+        <Route path="/auth" element={<AuthScreen />} />
+        <Route path="/*" element={
+          <ProtectedRoute>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/transactions" element={<TransactionList />} />
+                <Route path="/accounts" element={<AccountList />} />
+                <Route path="/categories" element={<CategoryList />} />
+                <Route path="/budgets" element={<BudgetList />} />
+                <Route path="/savings" element={<SavingsGoals />} />
+                <Route path="/wishlist" element={<WishlistPage />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              </Routes>
+            </Layout>
+          </ProtectedRoute>
+        } />
+      </Routes>
+    </Router>
   );
 };
 
