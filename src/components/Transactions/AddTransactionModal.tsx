@@ -234,7 +234,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
           </button>
         </div>
 
-        <div className="modal-body">
+        <div className="modal-body scrollbar-hide">
           <form className="space-y-6">
             {/* Transaction Type */}
             <div>
