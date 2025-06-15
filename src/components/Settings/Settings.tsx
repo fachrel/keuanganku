@@ -18,16 +18,32 @@ const Settings: React.FC = () => {
     setIsExporting(true);
     try {
       // Ambil semua data pengguna dari Supabase
-      const [transactionsResult, categoriesResult, budgetsResult] = await Promise.all([
+      const [
+        transactionsResult, 
+        categoriesResult, 
+        budgetsResult, 
+        accountsResult,
+        savingsGoalsResult,
+        wishlistResult,
+        monthlyBudgetsResult
+      ] = await Promise.all([
         supabase.from('transactions').select('*').eq('user_id', user.id),
         supabase.from('categories').select('*').eq('user_id', user.id),
         supabase.from('budgets').select('*').eq('user_id', user.id),
+        supabase.from('accounts').select('*').eq('user_id', user.id),
+        supabase.from('savings_goals').select('*').eq('user_id', user.id),
+        supabase.from('wishlist_items').select('*').eq('user_id', user.id),
+        supabase.from('monthly_budgets').select('*').eq('user_id', user.id),
       ]);
 
       const data = {
         transactions: transactionsResult.data || [],
         categories: categoriesResult.data || [],
         budgets: budgetsResult.data || [],
+        accounts: accountsResult.data || [],
+        savings_goals: savingsGoalsResult.data || [],
+        wishlist_items: wishlistResult.data || [],
+        monthly_budgets: monthlyBudgetsResult.data || [],
         exported_at: new Date().toISOString(),
       };
 
@@ -55,14 +71,89 @@ const Settings: React.FC = () => {
     if (window.confirm(t('settings.deleteConfirm'))) {
       setIsDeleting(true);
       try {
-        // Hapus semua data pengguna dari Supabase
-        await Promise.all([
-          supabase.from('transactions').delete().eq('user_id', user.id),
-          supabase.from('budgets').delete().eq('user_id', user.id),
-          supabase.from('categories').delete().eq('user_id', user.id),
-        ]);
+        // Delete all user data from Supabase in the correct order (respecting foreign key constraints)
+        // Delete in reverse order of dependencies
+        
+        // 1. Delete monthly budgets first (references categories)
+        const { error: monthlyBudgetsError } = await supabase
+          .from('monthly_budgets')
+          .delete()
+          .eq('user_id', user.id);
+        
+        if (monthlyBudgetsError) {
+          console.error('Error deleting monthly budgets:', monthlyBudgetsError);
+          throw monthlyBudgetsError;
+        }
+
+        // 2. Delete transactions (references categories and accounts)
+        const { error: transactionsError } = await supabase
+          .from('transactions')
+          .delete()
+          .eq('user_id', user.id);
+        
+        if (transactionsError) {
+          console.error('Error deleting transactions:', transactionsError);
+          throw transactionsError;
+        }
+
+        // 3. Delete budgets (references categories)
+        const { error: budgetsError } = await supabase
+          .from('budgets')
+          .delete()
+          .eq('user_id', user.id);
+        
+        if (budgetsError) {
+          console.error('Error deleting budgets:', budgetsError);
+          throw budgetsError;
+        }
+
+        // 4. Delete wishlist items
+        const { error: wishlistError } = await supabase
+          .from('wishlist_items')
+          .delete()
+          .eq('user_id', user.id);
+        
+        if (wishlistError) {
+          console.error('Error deleting wishlist items:', wishlistError);
+          throw wishlistError;
+        }
+
+        // 5. Delete savings goals
+        const { error: savingsError } = await supabase
+          .from('savings_goals')
+          .delete()
+          .eq('user_id', user.id);
+        
+        if (savingsError) {
+          console.error('Error deleting savings goals:', savingsError);
+          throw savingsError;
+        }
+
+        // 6. Delete accounts
+        const { error: accountsError } = await supabase
+          .from('accounts')
+          .delete()
+          .eq('user_id', user.id);
+        
+        if (accountsError) {
+          console.error('Error deleting accounts:', accountsError);
+          throw accountsError;
+        }
+
+        // 7. Delete categories last (referenced by many tables)
+        const { error: categoriesError } = await supabase
+          .from('categories')
+          .delete()
+          .eq('user_id', user.id);
+        
+        if (categoriesError) {
+          console.error('Error deleting categories:', categoriesError);
+          throw categoriesError;
+        }
 
         showSuccess(t('settings.dataDeleted'), 'Semua data telah dihapus');
+        
+        // Redirect to refresh the app state
         setTimeout(() => {
           window.location.reload();
         }, 2000);
