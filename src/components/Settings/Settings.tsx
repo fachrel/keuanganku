@@ -71,8 +71,9 @@ const Settings: React.FC = () => {
     if (window.confirm(t('settings.deleteConfirm'))) {
       setIsDeleting(true);
       try {
-        // Delete all user data from Supabase in the correct order (respecting foreign key constraints)
-        // Delete in reverse order of dependencies
+        // Delete all user data from Supabase in the correct order to avoid constraint violations
+        // The key insight is that accounts must be deleted before transactions to avoid
+        // the balance update trigger from running when transactions are deleted
         
         // 1. Delete monthly budgets first (references categories)
         const { error: monthlyBudgetsError } = await supabase
@@ -85,18 +86,7 @@ const Settings: React.FC = () => {
           throw monthlyBudgetsError;
         }
 
-        // 2. Delete transactions (references categories and accounts)
-        const { error: transactionsError } = await supabase
-          .from('transactions')
-          .delete()
-          .eq('user_id', user.id);
-        
-        if (transactionsError) {
-          console.error('Error deleting transactions:', transactionsError);
-          throw transactionsError;
-        }
-
-        // 3. Delete budgets (references categories)
+        // 2. Delete budgets (references categories)
         const { error: budgetsError } = await supabase
           .from('budgets')
           .delete()
@@ -107,7 +97,7 @@ const Settings: React.FC = () => {
           throw budgetsError;
         }
 
-        // 4. Delete wishlist items
+        // 3. Delete wishlist items
         const { error: wishlistError } = await supabase
           .from('wishlist_items')
           .delete()
@@ -118,7 +108,7 @@ const Settings: React.FC = () => {
           throw wishlistError;
         }
 
-        // 5. Delete savings goals
+        // 4. Delete savings goals
         const { error: savingsError } = await supabase
           .from('savings_goals')
           .delete()
@@ -129,7 +119,8 @@ const Settings: React.FC = () => {
           throw savingsError;
         }
 
-        // 6. Delete accounts
+        // 5. Delete accounts BEFORE transactions to prevent balance update trigger issues
+        // This will set account_id to NULL in transactions due to ON DELETE SET NULL constraint
         const { error: accountsError } = await supabase
           .from('accounts')
           .delete()
@@ -138,6 +129,17 @@ const Settings: React.FC = () => {
         if (accountsError) {
           console.error('Error deleting accounts:', accountsError);
           throw accountsError;
+        }
+
+        // 6. Delete transactions (now safe since account_id will be NULL)
+        const { error: transactionsError } = await supabase
+          .from('transactions')
+          .delete()
+          .eq('user_id', user.id);
+        
+        if (transactionsError) {
+          console.error('Error deleting transactions:', transactionsError);
+          throw transactionsError;
         }
 
         // 7. Delete categories last (referenced by many tables)
