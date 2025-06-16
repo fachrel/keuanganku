@@ -66,7 +66,7 @@ const textContent: Record<Language, Content> = {
         free: { name: "Starter", price: "Rp 0", period: "Forever", features: ["Unlimited Transaction Tracking", "Custom Budgeting", "Savings Goal Setting", "Insightful Reports"], cta: "Get Started for Free" },
         premium: { name: "Premium", status: "Coming Soon", description: "Get ready for advanced features like investment tracking, multi-currency support, and predictive forecasting." }
       },
-    footer: { copy: "KeuanganKu. All rights reserved.", madeBy: "This is a fictional application for demonstration purposes." }
+    footer: { copy: "KeuanganKu. All rights reserved.", madeBy: "By razka.dev" }
   },
   id: {
     nav: { features: "Fitur", howItWorks: "Cara Kerja", testimonials: "Testimoni", signIn: "Masuk", getStarted: "Mulai" },
