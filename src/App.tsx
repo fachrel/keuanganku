@@ -50,15 +50,6 @@ const GlobalStyles = () => {
   return null;
 };
 
-// A dedicated screen for handling both login and signup forms.
-const AuthScreen: React.FC = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  return isLogin ? (
-    <LoginForm onSwitchToSignup={() => setIsLogin(false)} />
-  ) : (
-    <SignupForm onSwitchToLogin={() => setIsLogin(true)} />
-  );
-};
 
 // Corrected ProtectedRoute component.
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {

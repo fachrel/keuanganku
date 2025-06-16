@@ -36,15 +36,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
 
   const navigation = [
-    { name: t('nav.dashboard'), icon: Home, path: '/dashboard' },
-    { name: t('nav.transactions'), icon: CreditCard, path: '/transactions' },
-    { name: t('nav.accounts'), icon: Wallet, path: '/accounts' },
-    { name: t('nav.categories'), icon: PieChart, path: '/categories' },
-    { name: t('nav.budgets'), icon: Target, path: '/budgets' },
-    { name: t('nav.savings'), icon: PiggyBank, path: '/savings' },
-    { name: t('nav.wishlist'), icon: Heart, path: '/wishlist' },
-    { name: t('nav.reports'), icon: BarChart3, path: '/reports' },
-    { name: t('nav.settings'), icon: Settings, path: '/settings' },
+    { name: t('nav.dashboard'), icon: Home, path: '/app/dashboard' },
+    { name: t('nav.transactions'), icon: CreditCard, path: '/app/transactions' },
+    { name: t('nav.accounts'), icon: Wallet, path: '/app/accounts' },
+    { name: t('nav.categories'), icon: PieChart, path: '/app/categories' },
+    { name: t('nav.budgets'), icon: Target, path: '/app/budgets' },
+    { name: t('nav.savings'), icon: PiggyBank, path: '/app/goals' },
+    { name: t('nav.wishlist'), icon: Heart, path: '/app/wishlist' },
+    { name: t('nav.reports'), icon: BarChart3, path: '/app/reports' },
+    { name: t('nav.settings'), icon: Settings, path: '/app/settings' },
   ];
 
   const handleNavigation = (path: string) => {
