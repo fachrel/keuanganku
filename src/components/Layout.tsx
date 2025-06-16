@@ -68,7 +68,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                   <DollarSign className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold text-gray-900 dark:text-white">KeuanganKu</span>
+                <span className="text-xl font-bold text-gray-900 dark:text-white">Keuangan<span className="text-violet-500">Ku</span></span>
               </div>
               <button onClick={() => setSidebarOpen(false)}>
                 <X className="w-6 h-6 text-gray-400 dark:text-gray-300" />
@@ -119,7 +119,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <DollarSign className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">KeuanganKu</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">Keuangan<span className="text-violet-500">Ku</span></span>
             </div>
           </div>
           <nav className="flex flex-1 flex-col p-4">

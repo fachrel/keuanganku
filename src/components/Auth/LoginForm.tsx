@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { DollarSign, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
-interface LoginFormProps {
-  onSwitchToSignup: () => void;
-}
+interface LoginFormProps {} // Empty as we no longer need onSwitchToSignup
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
+
+const LoginForm: React.FC<LoginFormProps> = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -44,14 +44,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
             Masuk ke akun Anda
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Atau{' '}
-            <button
-              onClick={onSwitchToSignup}
-              className="font-medium text-blue-600 hover:text-blue-500"
-            >
-              buat akun baru
-            </button>
-          </p>
+          Atau{' '}
+          <Link
+            to="/signup"
+            className="font-medium text-blue-600 hover:text-blue-500"
+          >
+            buat akun baru
+          </Link>
+        </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (

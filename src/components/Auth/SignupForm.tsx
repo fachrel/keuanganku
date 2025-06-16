@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { DollarSign, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
-interface SignupFormProps {
-  onSwitchToLogin: () => void;
-}
+interface SignupFormProps {} // Empty as we no longer need onSwitchToLogin
 
-const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
+
+const SignupForm: React.FC<SignupFormProps> = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -58,12 +58,12 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Atau{' '}
-            <button
-              onClick={onSwitchToLogin}
+            <Link
+              to="/login"
               className="font-medium text-blue-600 hover:text-blue-500"
             >
               masuk ke akun yang sudah ada
-            </button>
+            </Link>
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
