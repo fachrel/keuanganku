@@ -227,7 +227,7 @@ const Hero: React.FC<{ content: Content['hero'] }> = ({ content }) => {
     ];
   
     return (
-      <section className="relative flex min-h-screen items-center overflow-hidden mt-20 md:mt-0">
+      <section className="relative flex min-h-screen items-center overflow-hidden pt-20 md:pt-0">
         <div
           className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[200%] h-[80%] z-0"
           style={{ background: 'radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.20) 0%, transparent 65%)' }}
