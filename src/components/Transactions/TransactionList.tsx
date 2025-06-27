@@ -15,6 +15,7 @@ import {
   Trash2,
   CreditCard,
   RefreshCw,
+  XCircle,
   Camera
 } from 'lucide-react';
 import { useModal } from '../Layout/ModalProvider';
@@ -27,13 +28,24 @@ const TransactionList: React.FC = () => {
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense' | 'transfer'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'amount'>('date');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null)
 
   const filteredTransactions = transactions
     ?.filter((transaction: Transaction) => {
+      const transactionDate = new Date(transaction.date);
+
       const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           transaction.category?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+                            transaction.category?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+      
       const matchesType = filterType === 'all' || transaction.type === filterType;
-      return matchesSearch && matchesType;
+
+      // NEW: Date filtering logic
+      const matchesDate = 
+        (!startDate || transactionDate >= startDate) && 
+        (!endDate || transactionDate <= endDate);
+
+      return matchesSearch && matchesType && matchesDate; // Add matchesDate here
     })
     .sort((a: Transaction, b: Transaction) => {
       if (sortBy === 'date') {
@@ -177,9 +189,9 @@ const TransactionList: React.FC = () => {
           </div>
 
           {/* Filters Row */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            {/* Type Filter */}
-            <div className="flex items-center space-x-2 flex-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Type Filter (No changes inside this div) */}
+            <div className="flex items-center space-x-2">
               <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
               <select
                 value={filterType}
@@ -193,8 +205,8 @@ const TransactionList: React.FC = () => {
               </select>
             </div>
 
-            {/* Sort */}
-            <div className="flex items-center space-x-2 flex-1">
+            {/* Sort (No changes inside this div) */}
+            <div className="flex items-center space-x-2">
               <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
               <select
                 value={sortBy}
@@ -206,6 +218,57 @@ const TransactionList: React.FC = () => {
               </select>
             </div>
           </div>
+
+          {/* ADD THIS NEW SECTION BELOW THE FILTERS ROW */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Start Date */}
+              <div className="flex items-center space-x-2">
+                <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <input
+                    type="date"
+                    value={startDate ? startDate.toISOString().split('T')[0] : ''}
+                    onChange={(e) => {
+                      if (!e.target.value) return setStartDate(null);
+                      const date = new Date(e.target.value);
+                      date.setHours(0, 0, 0, 0); // Set to start of day
+                      setStartDate(date);
+                    }}
+                    className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* End Date */}
+              <div className="flex items-center space-x-2">
+                <Calendar className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <input
+                    type="date"
+                    value={endDate ? endDate.toISOString().split('T')[0] : ''}
+                    onChange={(e) => {
+                        if (!e.target.value) return setEndDate(null);
+                        const date = new Date(e.target.value);
+                        date.setHours(23, 59, 59, 999); // Set to end of day
+                        setEndDate(date);
+                    }}
+                    className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+          </div>
+
+          {/* ADD THIS NEW CLEAR BUTTON LOGIC */}
+          {(startDate || endDate) && (
+            <div className="flex justify-end">
+              <button
+                onClick={() => {
+                  setStartDate(null);
+                  setEndDate(null);
+                }}
+                className="flex items-center space-x-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                <XCircle className="w-3 h-3"/>
+                <span>Clear Date Filter</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
