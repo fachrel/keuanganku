@@ -69,6 +69,8 @@ const AddRecurringModal: React.FC<AddRecurringModalProps> = ({ closeModal }) => 
     if (!formData.amount) newErrors.amount = 'Jumlah diperlukan';
     if (parseFloat(formData.amount) <= 0) newErrors.amount = 'Jumlah harus lebih besar dari 0';
     if (!formData.account_id) newErrors.account_id = 'Akun harus dipilih';
+    // MODIFIED: Added validation for category
+    if (!formData.category_id) newErrors.category_id = 'Kategori harus dipilih';
     if (!formData.start_date) newErrors.start_date = 'Tanggal mulai diperlukan';
 
     setErrors(newErrors);
@@ -111,8 +113,8 @@ const AddRecurringModal: React.FC<AddRecurringModalProps> = ({ closeModal }) => 
         ...formData,
         amount: parseFloat(formData.amount),
         next_due_date,
-        // THIS IS THE FIX: If end_date is an empty string, send null instead.
         end_date: formData.end_date || null,
+        category_id: formData.category_id || null,
       };
 
       await addRecurringTransaction(submissionData);
@@ -125,7 +127,7 @@ const AddRecurringModal: React.FC<AddRecurringModalProps> = ({ closeModal }) => 
     }
   };
 
-  const filteredCategories = categories.filter(c => c.type === formData.type);
+  const filteredCategories = categories.filter(c => c.type === formData.type || c.type === 'transfer' as 'income' | 'expense' | 'transfer');
 
   return (
     <div className="modal-container" onClick={handleBackdropClick}>
@@ -190,11 +192,12 @@ const AddRecurringModal: React.FC<AddRecurringModalProps> = ({ closeModal }) => 
                         <label htmlFor="category_id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kategori</label>
                          <div className="relative">
                             <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5"/>
-                            <select id="category_id" value={formData.category_id || ''} onChange={(e) => handleChange('category_id', e.target.value)} className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg appearance-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                                <option value="">-- Tanpa Kategori --</option>
+                            <select id="category_id" value={formData.category_id || ''} onChange={(e) => handleChange('category_id', e.target.value)} className={`w-full pl-10 pr-4 py-3 border rounded-lg appearance-none focus:ring-2 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${errors.category_id ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500'}`}>
+                                <option value="">Pilih Kategori</option>
                                 {filteredCategories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                             </select>
                         </div>
+                        {errors.category_id && <p className="text-red-500 text-xs mt-1">{errors.category_id}</p>}
                     </div>
                     
                     {/* Frequency */}

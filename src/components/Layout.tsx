@@ -39,7 +39,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigation = [
     { name: t('nav.dashboard'), icon: Home, path: '/app/dashboard' },
     { name: t('nav.transactions'), icon: CreditCard, path: '/app/transactions' },
-    { name: t('nav.recurring'), icon: Repeat, path: '/app/recurring' },
+    // Example of a badge
+    { name: t('nav.recurring'), icon: Repeat, path: '/app/recurring', badge: 'New' },
     { name: t('nav.accounts'), icon: Wallet, path: '/app/accounts' },
     { name: t('nav.categories'), icon: PieChart, path: '/app/categories' },
     { name: t('nav.budgets'), icon: Target, path: '/app/budgets' },
@@ -81,7 +82,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 {navigation.map((item) => {
                   const Icon = item.icon;
                   return (
-                    <li key={item.path}>
+                    <li key={item.path} className="relative">
                       <button
                         onClick={() => handleNavigation(item.path)}
                         className={`w-full flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
@@ -90,9 +91,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                         }`}
                       >
-                        <Icon className="w-5 h-5" />
-                        <span>{item.name}</span>
+                        <Icon className="w-5 h-5 flex-shrink-0" />
+                        <span className="flex-1 text-left whitespace-nowrap">{item.name}</span>
                       </button>
+                      {/* Badge positioned absolutely on the top right */}
+                      {item.badge && (
+                        <span className="absolute top-1.5 right-2 bg-pink-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full z-10 pointer-events-none">
+                          {item.badge}
+                        </span>
+                      )}
                     </li>
                   );
                 })}
@@ -129,7 +136,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               {navigation.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <li key={item.path}>
+                  <li key={item.path} className="relative">
                     <button
                       onClick={() => handleNavigation(item.path)}
                       className={`w-full flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
@@ -138,9 +145,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                     >
-                      <Icon className="w-5 h-5" />
-                      <span>{item.name}</span>
+                      <Icon className="w-5 h-5 flex-shrink-0" />
+                      <span className="flex-1 text-left whitespace-nowrap">{item.name}</span>
                     </button>
+                    {/* Badge positioned absolutely on the top right */}
+                    {item.badge && (
+                      <span className="absolute top-1.5 right-2 bg-pink-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full z-10 pointer-events-none">
+                        {item.badge}
+                      </span>
+                    )}
                   </li>
                 );
               })}
@@ -170,8 +183,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               <Menu className="w-6 h-6" />
             </button>
+            <div className="flex-1" /> {/* Spacer */}
             <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="hidden sm:block text-sm text-gray-600 dark:text-gray-400">
                 Selamat datang kembali, <span className="font-medium text-gray-900 dark:text-white">{user?.name}</span>
               </div>
               
