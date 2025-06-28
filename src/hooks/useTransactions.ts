@@ -227,6 +227,30 @@ export const useTransactions = () => {
     }
   };
 
+  /**
+   * Fetches transactions for a specific recurring rule.
+   * @param ruleId The UUID of the recurring transaction rule.
+   */
+  const getTransactionsByRuleId = async (ruleId: string) => {
+    if (!user) {
+      console.error("User not found");
+      return [];
+    }
+    
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('recurring_transaction_id', ruleId)
+      .order('date', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching transaction history:', error);
+      return [];
+    }
+    return data || [];
+  };
+
   return {
     transactions,
     categories,
@@ -237,5 +261,6 @@ export const useTransactions = () => {
     deleteCategory,
     loadTransactions,
     loadCategories,
+    getTransactionsByRuleId,
   };
 };

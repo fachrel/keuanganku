@@ -1,10 +1,9 @@
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import { 
   TrendingUp, 
   TrendingDown, 
   DollarSign, 
   Target,
-  CreditCard,
   Calendar,
   PiggyBank,
   AlertCircle,
@@ -13,7 +12,6 @@ import {
   ArrowDownRight,
   Activity,
   Percent,
-  BarChart3,
   RefreshCw,
   Clock
 } from 'lucide-react';
@@ -24,6 +22,7 @@ import { useSavingsGoals } from '../../hooks/useSavingsGoals';
 import { useAccounts } from '../../hooks/useAccounts';
 import { useTheme } from '../../contexts/ThemeContext';
 import { formatRupiah } from '../../utils/currency';
+import { Category } from '../../types';
 
 const Dashboard: React.FC = () => {
   const { transactions, categories } = useTransactions();
@@ -34,16 +33,7 @@ const Dashboard: React.FC = () => {
   const [lastSyncTime, setLastSyncTime] = useState<Date>(new Date());
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Auto-refresh data every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      handleRefreshData();
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleRefreshData = async () => {
+  const handleRefreshData = useCallback(async () => {
     setIsRefreshing(true);
     try {
       await loadAccounts();
@@ -53,7 +43,16 @@ const Dashboard: React.FC = () => {
     } finally {
       setIsRefreshing(false);
     }
-  };
+  }, [loadAccounts]);
+
+  // Auto-refresh data every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleRefreshData();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [handleRefreshData]);
 
   const stats = useMemo(() => {
     const currentMonth = new Date().getMonth();
@@ -121,7 +120,7 @@ const Dashboard: React.FC = () => {
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
     
-    const categoryTotals = new Map<string, { amount: number; category: any }>();
+    const categoryTotals = new Map<string, { amount: number; category: Category | undefined }>();
     
     transactions
       .filter(t => {
@@ -133,24 +132,23 @@ const Dashboard: React.FC = () => {
       })
       .forEach(transaction => {
         const category = categories.find(c => c.id === transaction.category_id);
-        const categoryId = transaction.category_id;
         
-        if (categoryTotals.has(categoryId)) {
-          const existing = categoryTotals.get(categoryId)!;
-          categoryTotals.set(categoryId, {
+        if (categoryTotals.has(transaction.category_id)) {
+          const existing = categoryTotals.get(transaction.category_id)!;
+          categoryTotals.set(transaction.category_id, {
             ...existing,
             amount: existing.amount + transaction.amount,
           });
         } else {
-          categoryTotals.set(categoryId, {
+          categoryTotals.set(transaction.category_id, {
             amount: transaction.amount,
             category,
           });
         }
       });
 
-    return Array.from(categoryTotals.entries())
-      .map(([categoryId, data]) => ({
+    return Array.from(categoryTotals.values())
+      .map((data) => ({
         name: data.category?.name || 'Unknown',
         value: data.amount,
         color: data.category?.color || '#6B7280',

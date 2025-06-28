@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, PiggyBank, DollarSign, CreditCard, AlertTriangle } from 'lucide-react';
 import { SavingsGoal } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';

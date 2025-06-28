@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowRight, Calendar, Filter, Search, Clock } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ArrowRight, Calendar, Filter, Search } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { formatRupiah } from '../../utils/currency';
+import { Account } from '../../types';
 
 interface TransferRecord {
   id: string;
@@ -14,34 +15,23 @@ interface TransferRecord {
   created_at: string;
 }
 
-interface TransferHistoryProps {
-  accounts: any[];
-}
-
-const TransferHistory: React.FC<TransferHistoryProps> = ({ accounts }) => {
+const TransferHistory: React.FC = () => {
   const { user } = useAuth();
   const [transfers, setTransfers] = useState<TransferRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('all');
 
-  useEffect(() => {
-    if (user) {
-      loadTransferHistory();
-    }
-  }, [user]);
-
-  const loadTransferHistory = async () => {
+  const loadTransferHistory = useCallback(async () => {
     if (!user) return;
 
     setLoading(true);
     try {
-      // Get all transfer transactions
       const { data: transactions, error } = await supabase
         .from('transactions')
         .select(`
           *,
-          account:accounts(id, name)
+          account:accounts!inner(id, name)
         `)
         .eq('user_id', user.id)
         .eq('type', 'transfer')
@@ -52,18 +42,18 @@ const TransferHistory: React.FC<TransferHistoryProps> = ({ accounts }) => {
         return;
       }
 
-      // Group transfers by matching descriptions and dates
       const transferMap = new Map<string, TransferRecord>();
       
       transactions?.forEach(transaction => {
         const key = `${transaction.date}-${transaction.description.replace(/Transfer (ke|dari) .+?: /, '')}`;
-        
+        const accountName = (transaction.account as unknown as Account)?.name || 'Unknown';
+
         if (transferMap.has(key)) {
           const existing = transferMap.get(key)!;
           if (transaction.description.includes('Transfer ke')) {
-            existing.sourceAccount = transaction.account?.name || 'Unknown';
+            existing.destinationAccount = accountName;
           } else {
-            existing.destinationAccount = transaction.account?.name || 'Unknown';
+            existing.sourceAccount = accountName;
           }
         } else {
           transferMap.set(key, {
@@ -71,8 +61,8 @@ const TransferHistory: React.FC<TransferHistoryProps> = ({ accounts }) => {
             amount: transaction.amount,
             description: transaction.description.replace(/Transfer (ke|dari) .+?: /, ''),
             date: transaction.date,
-            sourceAccount: transaction.description.includes('Transfer ke') ? (transaction.account?.name || 'Unknown') : '',
-            destinationAccount: transaction.description.includes('Transfer dari') ? (transaction.account?.name || 'Unknown') : '',
+            sourceAccount: transaction.description.includes('Transfer dari') ? accountName : '',
+            destinationAccount: transaction.description.includes('Transfer ke') ? accountName : '',
             created_at: transaction.created_at,
           });
         }
@@ -84,30 +74,39 @@ const TransferHistory: React.FC<TransferHistoryProps> = ({ accounts }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    loadTransferHistory();
+  }, [loadTransferHistory]);
 
   const filteredTransfers = transfers.filter(transfer => {
     const matchesSearch = transfer.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          transfer.sourceAccount.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          transfer.destinationAccount.toLowerCase().includes(searchTerm.toLowerCase());
 
-    let matchesDate = true;
-    if (dateFilter !== 'all') {
-      const transferDate = new Date(transfer.date);
-      const now = new Date();
-      
-      switch (dateFilter) {
-        case 'today':
-          matchesDate = transferDate.toDateString() === now.toDateString();
-          break;
-        case 'week':
-          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          matchesDate = transferDate >= weekAgo;
-          break;
-        case 'month':
-          matchesDate = transferDate.getMonth() === now.getMonth() && 
-                       transferDate.getFullYear() === now.getFullYear();
-          break;
+    if (dateFilter === 'all') {
+      return matchesSearch;
+    }
+
+    const transferDate = new Date(transfer.date);
+    const now = new Date();
+    let matchesDate = false;
+
+    switch (dateFilter) {
+      case 'today': {
+        matchesDate = transferDate.toDateString() === now.toDateString();
+        break;
+      }
+      case 'week': {
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        matchesDate = transferDate >= weekAgo;
+        break;
+      }
+      case 'month': {
+        matchesDate = transferDate.getMonth() === now.getMonth() && 
+                     transferDate.getFullYear() === now.getFullYear();
+        break;
       }
     }
 

@@ -15,6 +15,7 @@ import AddWishlistModal from '../Wishlist/AddWishlistModal';
 import EditWishlistModal from '../Wishlist/EditWishlistModal';
 import AddTransactionModal from '../Transactions/AddTransactionModal';
 import OCRTransactionModal from '../Transactions/OCRTransactionModal';
+import AddRecurringModal from '../Recurring/AddRecurringModal';
 
 const ModalContainer: React.FC = () => {
   const { modalType, modalData, isModalOpen, closeModal } = useModal();
@@ -85,6 +86,9 @@ const ModalContainer: React.FC = () => {
     
     case 'ocrTransaction':
       return <OCRTransactionModal isOpen={true} onClose={closeModal} />;
+
+    case 'addRecurringTransaction':
+      return <AddRecurringModal closeModal={closeModal} />;
     
     default:
       return null;

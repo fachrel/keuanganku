@@ -27,6 +27,7 @@ const translations = {
     // Navigation
     'nav.dashboard': 'Dashboard',
     'nav.transactions': 'Transaksi',
+    'nav.recurring': 'Transaksi Berulang',
     'nav.accounts': 'Akun',
     'nav.categories': 'Kategori',
     'nav.budgets': 'Anggaran',
@@ -338,6 +339,7 @@ const translations = {
     // Navigation
     'nav.dashboard': 'Dashboard',
     'nav.transactions': 'Transactions',
+    'nav.recurring': 'Recurring Transaction',
     'nav.accounts': 'Accounts',
     'nav.categories': 'Categories',
     'nav.budgets': 'Budgets',

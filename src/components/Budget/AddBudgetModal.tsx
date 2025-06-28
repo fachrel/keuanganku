@@ -4,7 +4,6 @@ import { Budget, Category } from '../../types';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useToast } from '../../contexts/ToastContext';
 import { formatRupiah } from '../../utils/currency';
-import { AppError, errorCodes } from '../../utils/errorHandler';
 
 interface AddBudgetModalProps {
   categories: Category[];

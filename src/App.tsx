@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -16,6 +16,7 @@ import Reports from './components/Reports/Reports';
 import Settings from './components/Settings/Settings';
 import AccountList from './components/Accounts/AccountList';
 import LandingPage from './components/LandingPage/LandingPage';
+import RecurringTransactionList from './components/Recurring/RecurringTransactionList';
 
 // This component is unchanged but is included for completeness.
 const GlobalStyles = () => {
@@ -82,6 +83,7 @@ const MainApp: React.FC = () => {
         <Route path="wishlist" element={<WishlistPage />} />
         <Route path="reports" element={<Reports />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="recurring" element={<RecurringTransactionList />} /> 
         {/* A fallback route for any unknown paths within the protected app */}
         <Route path="*" element={<Navigate to="dashboard" />} />
       </Routes>

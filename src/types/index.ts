@@ -39,6 +39,7 @@ export interface Transaction {
   account_id?: string;
   category: Category;
   account?: Account;
+  recurring_transaction_id?: string | null;
 }
 
 export interface Budget {
@@ -106,4 +107,41 @@ export interface AuthContextType {
   signup: (email: string, password: string, name: string) => Promise<boolean>;
   logout: () => void;
   loading: boolean;
+  loginWithGoogle: () => Promise<void>;
 }
+
+export interface RecurringTransaction {
+  id: string;
+  user_id: string;
+  description: string;
+  amount: number;
+  type: 'income' | 'expense';
+  account_id: string;
+  category_id?: string | null; // Category can be optional
+  frequency: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  start_date: string; // ISO date string e.g., "2024-12-31"
+  end_date?: string | null;
+  last_created_date?: string | null;
+  next_due_date: string;
+  created_at: string;
+  
+  // Optional: To hold the full object for easier display
+  accounts?: Account; 
+  categories?: Category;
+}
+
+export type ModalType = 
+  | 'addAccount'
+  | 'editAccount'
+  | 'transfer'
+  | 'addCategory'
+  | 'categoryBudget'
+  | 'addBudget'
+  | 'editBudget'
+  | 'addGoal'
+  | 'contributeGoal'
+  | 'addWishlist'
+  | 'editWishlist'
+  | 'addTransaction'
+  | 'addRecurringTransaction'
+  | 'ocrTransaction';

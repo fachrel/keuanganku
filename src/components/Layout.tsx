@@ -16,7 +16,8 @@ import {
   Sun,
   Globe,
   Wallet,
-  Heart
+  Heart,
+  Repeat
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -38,6 +39,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigation = [
     { name: t('nav.dashboard'), icon: Home, path: '/app/dashboard' },
     { name: t('nav.transactions'), icon: CreditCard, path: '/app/transactions' },
+    { name: t('nav.recurring'), icon: Repeat, path: '/app/recurring' },
     { name: t('nav.accounts'), icon: Wallet, path: '/app/accounts' },
     { name: t('nav.categories'), icon: PieChart, path: '/app/categories' },
     { name: t('nav.budgets'), icon: Target, path: '/app/budgets' },

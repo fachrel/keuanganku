@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, ArrowRight, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Account } from '../../types';
 import { useAccounts } from '../../hooks/useAccounts';

@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { User, AuthContextType } from '../types';
 import { supabase } from '../lib/supabase';
 import { getErrorDetails, logError, errorCodes } from '../utils/errorHandler';
@@ -171,8 +170,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const loginWithGoogle = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+      });
+
+      if (error) {
+        const errorDetails = getErrorDetails(error);
+        logError(error, 'Google login attempt');
+        showError(errorDetails.userMessage, errorDetails.solution);
+      }
+    } catch (error) {
+      const errorDetails = getErrorDetails(error);
+      logError(error, 'Google login error');
+      showError(errorDetails.userMessage, errorDetails.solution);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, loading, loginWithGoogle }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Calendar, 
   ChevronLeft, 
   ChevronRight, 
   Plus, 
-  Edit3, 
-  Trash2, 
   Target,
   TrendingUp,
   AlertTriangle,
@@ -16,11 +14,12 @@ import {
 import { useMonthlyBudgets } from '../../hooks/useMonthlyBudgets';
 import { formatRupiah } from '../../utils/currency';
 import { useModal } from '../Layout/ModalProvider';
+import { MonthlyBudgetWithDetails } from '../../types';
 
 const MonthlyBudgetList: React.FC = () => {
   const {
     monthlyBudgets,
-    loading,
+    loading: budgetsLoading,
     currentMonth,
     currentYear,
     checkBudgetExists,
@@ -33,20 +32,20 @@ const MonthlyBudgetList: React.FC = () => {
 
   const { openModal } = useModal();
   const [budgetExists, setBudgetExists] = useState(false);
-  const [checkingBudget, setCheckingBudget] = useState(false);
+  const [checkingBudget, setCheckingBudget] = useState(true);
   const [creatingBudget, setCreatingBudget] = useState(false);
   const [expandedBudget, setExpandedBudget] = useState<string | null>(null);
 
-  useEffect(() => {
-    checkBudgetExistence();
-  }, [currentMonth, currentYear]);
-
-  const checkBudgetExistence = async () => {
+  const checkBudgetExistence = useCallback(async () => {
     setCheckingBudget(true);
     const exists = await checkBudgetExists(currentMonth, currentYear);
     setBudgetExists(exists);
     setCheckingBudget(false);
-  };
+  }, [checkBudgetExists, currentMonth, currentYear]);
+
+  useEffect(() => {
+    checkBudgetExistence();
+  }, [checkBudgetExistence]);
 
   const handleCreateBudget = async () => {
     setCreatingBudget(true);
@@ -59,7 +58,7 @@ const MonthlyBudgetList: React.FC = () => {
     setCreatingBudget(false);
   };
 
-  const handleEditBudget = (budget: any) => {
+  const handleEditBudget = (budget: MonthlyBudgetWithDetails) => {
     openModal('editBudget', {
       budget,
       onUpdateBudget: updateBudgetAmount

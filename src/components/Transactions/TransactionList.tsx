@@ -16,7 +16,8 @@ import {
   CreditCard,
   RefreshCw,
   XCircle,
-  Camera
+  Camera,
+  Repeat
 } from 'lucide-react';
 import { useModal } from '../Layout/ModalProvider';
 

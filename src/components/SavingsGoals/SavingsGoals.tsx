@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, PiggyBank, Target, Calendar, TrendingUp, CheckCircle, RefreshCw, ChevronDown } from 'lucide-react';
+import { Plus, PiggyBank, Target, TrendingUp, CheckCircle, RefreshCw, ChevronDown } from 'lucide-react';
 import { useSavingsGoals } from '../../hooks/useSavingsGoals';
 import { useTheme } from '../../contexts/ThemeContext';
 import { formatRupiah } from '../../utils/currency';

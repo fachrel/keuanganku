@@ -1,27 +1,12 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-
-// Modal types
-export type ModalType = 
-  | 'addAccount'
-  | 'editAccount'
-  | 'transfer'
-  | 'addCategory'
-  | 'categoryBudget'
-  | 'addBudget'
-  | 'editBudget'
-  | 'addGoal'
-  | 'contributeGoal'
-  | 'addWishlist'
-  | 'editWishlist'
-  | 'addTransaction'
-  | 'ocrTransaction';
+import { ModalType } from '../../types';
 
 // Modal context type
 interface ModalContextType {
-  openModal: (type: ModalType, data?: any) => void;
+  openModal: (type: ModalType, data?: Record<string, unknown>) => void;
   closeModal: () => void;
   modalType: ModalType | null;
-  modalData: any;
+  modalData: Record<string, unknown> | null;
   isModalOpen: boolean;
 }
 
@@ -40,7 +25,7 @@ export const useModal = () => {
 // Modal provider component
 export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [modalType, setModalType] = useState<ModalType | null>(null);
-  const [modalData, setModalData] = useState<any>(null);
+  const [modalData, setModalData] = useState<Record<string, unknown> | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Handle body scroll lock when modal is open
@@ -59,9 +44,9 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     };
   }, [isModalOpen]);
 
-  const openModal = (type: ModalType, data?: any) => {
+  const openModal = (type: ModalType, data?: Record<string, unknown>) => {
     setModalType(type);
-    setModalData(data);
+    setModalData(data || null);
     setIsModalOpen(true);
   };
 
