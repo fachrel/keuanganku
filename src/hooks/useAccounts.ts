@@ -82,7 +82,7 @@ export const useAccounts = () => {
     try {
       const { data, error } = await supabase
         .from('accounts')
-        .update(updates)
+        .update({ ...updates, balance: updates.balance })
         .eq('id', id)
         .select()
         .single();

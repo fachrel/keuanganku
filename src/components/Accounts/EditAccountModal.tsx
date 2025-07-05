@@ -23,6 +23,7 @@ const EditAccountModal: React.FC<EditAccountModalProps> = ({
   const [formData, setFormData] = useState({
     name: account.name,
     type: account.type,
+    balance: account.balance,
     color: account.color,
     icon: account.icon,
   });
@@ -74,6 +75,7 @@ const EditAccountModal: React.FC<EditAccountModalProps> = ({
       const result = await updateAccount(account.id, {
         name: formData.name.trim(),
         type: formData.type,
+        balance: formData.balance,
         color: formData.color,
         icon: formData.icon,
       });
@@ -162,17 +164,18 @@ const EditAccountModal: React.FC<EditAccountModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label htmlFor="balance" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {t('accounts.currentBalance')}
               </label>
-              <div className="px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg">
-                <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {formatRupiah(account.balance)}
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Balance is updated automatically through transactions
-                </p>
-              </div>
+              <input
+                type="number"
+                id="balance"
+                required
+                value={formData.balance}
+                onChange={(e) => setFormData({ ...formData, balance: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                placeholder={t('accounts.enterBalance')}
+              />
             </div>
 
             <div>
